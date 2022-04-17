@@ -27,34 +27,27 @@ class MovieCollectionCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func buildViews() {
-        layer.cornerRadius = 10
-        layer.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1).cgColor
-        layer.masksToBounds = true
-    
+    private func buildViews() {
         movieImage = UIImageView()
-        movieImage.clipsToBounds = true
         addSubview(movieImage)
         
-        let favoriteImageUIImage = UIImage(named: "favorite.png")
         favoriteImage = UIImageView()
         addSubview(favoriteImage)
-        favoriteImage.image = favoriteImageUIImage
-    }
-    
-    func setMovie(index: Int, caseMovie: MovieGroup) {
-        let movies = Movies.all()
-        
-        let imageUrl = movies.filter { $0.group.contains(caseMovie) }
-            .map { $0.imageUrl}
-        movieImage.load(urlString: imageUrl[index])
     }
 
     private func styleViews(){
+        layer.cornerRadius = 10
+        layer.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1).cgColor
+        layer.masksToBounds = true
+        
         movieImage.contentMode = .scaleAspectFill
+        movieImage.clipsToBounds = true
+        
+        let favoriteImageUIImage = UIImage(named: "favorite.png")
+        favoriteImage.image = favoriteImageUIImage
     }
 
-    func addConstraints() {
+    private func addConstraints() {
         movieImage.snp.makeConstraints{
             $0.top.bottom.equalToSuperview().inset(0)
             $0.leading.trailing.equalToSuperview().inset(0)
@@ -63,5 +56,12 @@ class MovieCollectionCell: UICollectionViewCell {
         favoriteImage.snp.makeConstraints {
             $0.top.leading.equalToSuperview().inset(8)
         }
+    }
+    
+    func setMovie(index: Int, caseMovie: MovieGroup) {
+        let movies = Movies.all()
+        let imageUrl = movies.filter { $0.group.contains(caseMovie) }.map { $0.imageUrl}
+        
+        movieImage.load(urlString: imageUrl[index])
     }
 }

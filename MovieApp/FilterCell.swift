@@ -11,11 +11,18 @@ import SnapKit
 import MovieAppData
 
 
-class FilterCell: UICollectionViewCell {
-    static let reuseIdentifier = String(describing: FilterCell.self)
+protocol FilterCellDelegate: AnyObject{
+    func clickedOn(cell: FilterCell)
+}
 
-    private var filterLabel : UIButton!
+class FilterCell: UICollectionViewCell {
     
+    static let reuseIdentifier = String(describing: FilterCell.self)
+    private var filterLabel : UIButton!
+    private var underline: UILabel!
+    
+    weak var delegate: FilterCellDelegate?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         buildViews()
@@ -27,30 +34,59 @@ class FilterCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                underline.isHidden = false
+                filterLabel.titleLabel!.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+            } else {
+                underline.isHidden = true
+                filterLabel.titleLabel!.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+            }
+         }
+    }
+    
     func buildViews() {
         filterLabel = UIButton()
         addSubview(filterLabel)
-
-    }
-    func setFilter(index: Int, group: MovieGroup) {
-    //    let group = ["On TV", "Streaming", "For Rent"]
+        filterLabel.addTarget(self, action: #selector(onClickButton), for: .touchUpInside)
         
-//        let imageUrl = movies.map { $0.imageUrl}
-        filterLabel.setTitle("\(group.filters[index])", for: .normal)
-        filterLabel.setTitleColor(.black, for: .normal)
-
-        
+        underline = UILabel()
+        addSubview(underline)
     }
 
     private func styleViews(){
-
+        filterLabel.setTitleColor(.black, for: .normal)
+        
+        underline.backgroundColor = .black
+        underline.isHidden = true
     }
 
     func addConstraints() {
+        
         filterLabel.snp.makeConstraints{
             $0.top.bottom.equalToSuperview().inset(0)
             $0.leading.trailing.equalToSuperview().inset(0)
         }
+        underline.snp.makeConstraints{
+            $0.top.equalTo(filterLabel.snp.bottom).offset(0)
+            $0.trailing.leading.equalToSuperview().inset(0)
+            $0.height.equalTo(3)
+        }
+    }
+    
+    func setFilter(index: Int, group: MovieGroup) {
+        
+        filterLabel.setTitle("\(group.filters[index].title)", for: .normal)
+        if index == 0{
+            underline.isHidden = false
+            filterLabel.titleLabel!.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        }
+    }
+    
+    @objc func onClickButton() {
+        isSelected = true
+        delegate?.clickedOn(cell: self)
     }
 }
 

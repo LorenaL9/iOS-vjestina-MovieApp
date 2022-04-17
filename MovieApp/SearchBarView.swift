@@ -20,7 +20,6 @@ class SearchBarView: UIView {
     private var grayLayout: UIView!
     private var grayLayout2: UIView!
 
-    
     weak var delegate: SearchInFokusDelegate?
     
     override init(frame: CGRect) {
@@ -68,7 +67,6 @@ class SearchBarView: UIView {
         grayLayout2.layer.backgroundColor = UIColor(red: 0.917, green: 0.917, blue: 0.921, alpha: 1).cgColor
         grayLayout2.layer.cornerRadius = 10
         
-        
         textInput.placeholder = "Search"
         textInput.textColor = .gray
         textInput.delegate = self
@@ -90,40 +88,40 @@ class SearchBarView: UIView {
         grayLayout.snp.makeConstraints{
             $0.leading.top.trailing.bottom.equalToSuperview().inset(0)
         }
+        
         grayLayout2.snp.makeConstraints{
             $0.leading.top.bottom.equalToSuperview().inset(0)
             $0.trailing.equalTo(safeAreaLayoutGuide).inset(60)
         }
         
         textInput.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(50)
-            $0.trailing.equalToSuperview().inset(85)
-            $0.top.equalToSuperview().offset(10)
+            $0.leading.equalToSuperview().inset(50)
+            $0.trailing.equalToSuperview().inset(87)
+            $0.top.equalToSuperview().inset(10)
         }
         
         searchImage.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(20)
-            $0.top.equalToSuperview().offset(10)
+            $0.leading.equalToSuperview().inset(20)
+            $0.top.equalToSuperview().inset(10)
         }
         
         xButton.snp.makeConstraints{
             $0.trailing.equalTo(safeAreaLayoutGuide).inset(70)
             $0.top.equalToSuperview().inset(10)
-            
         }
         
         cancelButton.snp.makeConstraints{
             $0.trailing.equalToSuperview().inset(0)
-            $0.top.equalToSuperview().offset(5)
+            $0.top.equalToSuperview().inset(5)
         }
     }
+    
     @objc func onClick(sender: UIButton!){
-        print("KLIIK")
         textInput.text = nil
+        xButton.isHidden = true
     }
     
     @objc func cancelAction() {
-        print("cancel")
         textFieldDidEndEditing(textInput)
     }
 }
@@ -132,19 +130,23 @@ extension SearchBarView: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         delegate?.inFocus(bool: true)
-        print("POCELoo")
-        xButton.isHidden = false
         cancelButton.isHidden = false
         grayLayout.isHidden = true
+        if textField.hasText {
+            xButton.isHidden = false
+        }
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         delegate?.inFocus(bool: false)
-        print("gotovo")
         xButton.isHidden = true
         cancelButton.isHidden = true
         grayLayout.isHidden = false
-        textInput.isEnabled = false
+        textInput.resignFirstResponder()
+    }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        xButton.isHidden = false
     }
 }
 

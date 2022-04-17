@@ -17,6 +17,8 @@ class MovieListViewController: UIViewController{
     private var searchBarView: SearchBarView!
     private var popisFilmovaGrid: UITableView!
     private var popisFilmovaList: UICollectionView!
+    private var layout: UICollectionViewFlowLayout!
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,9 +42,7 @@ class MovieListViewController: UIViewController{
         popisFilmovaGrid = UITableView()
         view.addSubview(popisFilmovaGrid)
         
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 20
-        layout.minimumInteritemSpacing = 10
+        layout = UICollectionViewFlowLayout()
 
         popisFilmovaList = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.addSubview(popisFilmovaList)
@@ -52,13 +52,15 @@ class MovieListViewController: UIViewController{
         popisFilmovaList.isHidden = true
         
         popisFilmovaGrid.isHidden = false
-
-    }
-    private func defineLayoutForViews(){
         
+        layout.minimumLineSpacing = 20
+        layout.minimumInteritemSpacing = 10
+    }
+    
+    private func defineLayoutForViews(){
         searchBarView.snp.makeConstraints {
             $0.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(4)
             $0.height.equalTo(45)
         }
         popisFilmovaList.snp.makeConstraints{
@@ -71,20 +73,16 @@ class MovieListViewController: UIViewController{
             $0.top.equalTo(searchBarView.snp.bottom).offset(10)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-        
     }
+    
     func configureCollectionView() {
         popisFilmovaList.register(ListOfMoviesCollectionViewCell.self, forCellWithReuseIdentifier: ListOfMoviesCollectionViewCell.reuseIdentifier)
         popisFilmovaList.dataSource = self
         popisFilmovaList.delegate = self
     }
+    
     func configurateTableView() {
-        popisFilmovaGrid
-            .register(
-                ListOfMoviesTableViewCell.self,
-                forCellReuseIdentifier: ListOfMoviesTableViewCell.reuseIdentifier
-            )
-
+        popisFilmovaGrid.register(ListOfMoviesTableViewCell.self, forCellReuseIdentifier: ListOfMoviesTableViewCell.reuseIdentifier)
         popisFilmovaGrid.dataSource = self
         popisFilmovaGrid.delegate = self
     }
@@ -97,7 +95,6 @@ extension MovieListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
- //       data[section].1.count
         5
     }
 
@@ -117,9 +114,6 @@ extension MovieListViewController: UITableViewDataSource {
 
 extension MovieListViewController: UITableViewDelegate {
 
- //   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-   //     tableView.deselectRow(at: indexPath, animated: true)
-  //  }
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         nil
     }
@@ -130,6 +124,7 @@ extension MovieListViewController: UITableViewDelegate {
 }
 
 extension MovieListViewController: UICollectionViewDelegateFlowLayout {
+    
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
@@ -158,9 +153,10 @@ extension MovieListViewController: UICollectionViewDataSource {
         cell.set(index: indexPath.row)
         return cell
     }
-
 }
+
 extension MovieListViewController: SearchInFokusDelegate {
+    
     func inFocus(bool: Bool) {
         if bool {
             popisFilmovaList.isHidden = false

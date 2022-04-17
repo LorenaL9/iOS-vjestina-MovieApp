@@ -11,25 +11,29 @@ import SnapKit
 import MovieAppData
 
 class ListOfMoviesTableViewCell: UITableViewCell {
-    var movies = Movies.all()
-    
-    let group = ["What's popular", "Free to Watch", "What's trending", "Top Rated", "Upcoming"]
-
     static let reuseIdentifier = String(describing: ListOfMoviesTableViewCell.self)
 
     private var groupLabel: UILabel!
     private var filter: UICollectionView!
     private var movieCollection: UICollectionView!
+    
+    private var layout: UICollectionViewFlowLayout!
+    private var layout1: UICollectionViewFlowLayout!
 
+    var movies = Movies.all()
+    
+    let group = ["What's popular", "Free to Watch", "What's trending", "Top Rated", "Upcoming"]
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
         buildViews()
         addContraints()
         styleViews()
         configureCollectionView()
-
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func addSubview(_ view: UIView) {
@@ -42,42 +46,37 @@ class ListOfMoviesTableViewCell: UITableViewCell {
     }
     
     func set(labelIndex: Int) {
-        
-//        let imageUrl = movies.map { $0.imageUrl}
         groupLabel.text = "\(group[labelIndex])"
     }
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     func buildViews() {
-        
         groupLabel = UILabel()
         addSubview(groupLabel)
         
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 10
-        layout.scrollDirection = .horizontal
+        layout = UICollectionViewFlowLayout()
     
         movieCollection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         addSubview(movieCollection)
         
-        let layout1 = UICollectionViewFlowLayout()
-        layout1.minimumLineSpacing = 5
-        layout1.scrollDirection = .horizontal
+        layout1 = UICollectionViewFlowLayout()
         
         filter = UICollectionView(frame: .zero, collectionViewLayout: layout1)
         addSubview(filter)
     }
+    
     func styleViews(){
-        groupLabel.font = .systemFont(ofSize: 20, weight: .bold)
-
+        groupLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        
+        layout.minimumLineSpacing = 10
+        layout.scrollDirection = .horizontal
+        
+        layout1.minimumLineSpacing = 5
+        layout1.scrollDirection = .horizontal
     }
 
     func addContraints() {
         groupLabel.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(15)
+            $0.leading.trailing.equalToSuperview().inset(8)
             $0.top.equalToSuperview().inset(10)
         }
         movieCollection.snp.makeConstraints {
@@ -89,11 +88,11 @@ class ListOfMoviesTableViewCell: UITableViewCell {
         filter.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(8)
             $0.trailing.equalToSuperview().inset(0)
-            $0.top.equalTo(groupLabel.snp.bottom).offset(5)
-            $0.height.equalTo(45)
+            $0.top.equalTo(groupLabel.snp.bottom).offset(0)
+            $0.height.equalTo(40)
         }
-
     }
+    
     func configureCollectionView() {
         movieCollection.register(MovieCollectionCell.self, forCellWithReuseIdentifier: MovieCollectionCell.reuseIdentifier)
         movieCollection.dataSource = self
@@ -105,7 +104,6 @@ class ListOfMoviesTableViewCell: UITableViewCell {
     }
 }
 
-
 extension ListOfMoviesTableViewCell: UICollectionViewDelegateFlowLayout {
     
     func collectionView(
@@ -116,11 +114,23 @@ extension ListOfMoviesTableViewCell: UICollectionViewDelegateFlowLayout {
         if collectionView == self.movieCollection {
             return CGSize(width: 150, height: 200)
         } else {
-            return CGSize(width: 70, height: 40)
+            let label = UILabel(frame: CGRect.zero)
+            if groupLabel.text == MovieGroup.popular.title {
+                label.text = "\(MovieGroup.popular.filters[indexPath.item].title)"
+            } else if groupLabel.text == MovieGroup.freeToWatch.title {
+                label.text = "\(MovieGroup.freeToWatch.filters[indexPath.item].title)"
+            } else if groupLabel.text == MovieGroup.trending.title {
+                label.text = "\(MovieGroup.trending.filters[indexPath.item].title)"
+            } else if groupLabel.text == MovieGroup.topRated.title {
+                label.text = "\(MovieGroup.topRated.filters[indexPath.item].title)"
+            } else if groupLabel.text == MovieGroup.upcoming.title {
+                label.text = "\(MovieGroup.upcoming.filters[indexPath.item].title)"
+            }
+            label.sizeToFit()
+            return CGSize(width: label.frame.width + 18, height: 30)
         }
     }
 }
-
 
 extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
 
@@ -134,28 +144,28 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == self.movieCollection {
-            if groupLabel.text == "What's popular" {
+            if groupLabel.text == MovieGroup.popular.title {
                 return movies.filter { $0.group.contains(MovieGroup.popular) }.count
-            } else if groupLabel.text == "Free to Watch" {
+            } else if groupLabel.text == MovieGroup.freeToWatch.title {
                 return movies.filter { $0.group.contains(MovieGroup.freeToWatch) }.count
-            } else if groupLabel.text == "What's trending" {
+            } else if groupLabel.text == MovieGroup.trending.title {
                 return movies.filter { $0.group.contains(MovieGroup.trending) }.count
-            } else if groupLabel.text == "Top Rated" {
+            } else if groupLabel.text == MovieGroup.topRated.title {
                 return movies.filter { $0.group.contains(MovieGroup.topRated) }.count
-            } else if groupLabel.text == "Upcoming" {
+            } else if groupLabel.text == MovieGroup.upcoming.title {
                 return movies.filter { $0.group.contains(MovieGroup.upcoming) }.count
             }
             return 0
         } else {
-            if groupLabel.text == "What's popular" {
+            if groupLabel.text == MovieGroup.popular.title {
                 return MovieGroup.popular.filters.count
-            } else if groupLabel.text == "Free to Watch" {
+            } else if groupLabel.text == MovieGroup.freeToWatch.title {
                 return MovieGroup.freeToWatch.filters.count
-            } else if groupLabel.text == "What's trending" {
+            } else if groupLabel.text == MovieGroup.trending.title {
                 return MovieGroup.trending.filters.count
-            } else if groupLabel.text == "Top Rated" {
+            } else if groupLabel.text == MovieGroup.topRated.title {
                 return MovieGroup.topRated.filters.count
-            } else if groupLabel.text == "Upcoming" {
+            } else if groupLabel.text == MovieGroup.upcoming.title {
                 return MovieGroup.upcoming.filters.count
             }
             return 0
@@ -170,17 +180,18 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             else {
                 fatalError()
             }
-            if groupLabel.text == "What's popular" {
+            if groupLabel.text == MovieGroup.popular.title {
                 cell.setFilter(index: indexPath.row, group: MovieGroup.popular)
-            } else if groupLabel.text == "Free to Watch" {
+            } else if groupLabel.text == MovieGroup.freeToWatch.title {
                 cell.setFilter(index: indexPath.row, group: MovieGroup.freeToWatch)
-            } else if groupLabel.text == "What's trending" {
+            } else if groupLabel.text == MovieGroup.trending.title {
                 cell.setFilter(index: indexPath.row, group: MovieGroup.trending)
-            } else if groupLabel.text == "Top Rated" {
+            } else if groupLabel.text == MovieGroup.topRated.title {
                 cell.setFilter(index: indexPath.row, group: MovieGroup.topRated)
             } else {
                 cell.setFilter(index: indexPath.row, group: MovieGroup.upcoming)
             }
+            cell.delegate = self
             return cell
         }
         
@@ -190,19 +201,27 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             else {
                 fatalError()
             }
-            if groupLabel.text == "What's popular" {
+            if groupLabel.text == MovieGroup.popular.title {
                 cell.setMovie(index: indexPath.row, caseMovie: MovieGroup.popular)
-            } else if groupLabel.text == "Free to Watch" {
+            } else if groupLabel.text == MovieGroup.freeToWatch.title {
                 cell.setMovie(index: indexPath.row, caseMovie: MovieGroup.freeToWatch)
-            } else if groupLabel.text == "What's trending" {
+            } else if groupLabel.text == MovieGroup.trending.title {
                 cell.setMovie(index: indexPath.row, caseMovie: MovieGroup.trending)
-            } else if groupLabel.text == "Top Rated" {
+            } else if groupLabel.text == MovieGroup.topRated.title {
                 cell.setMovie(index: indexPath.row, caseMovie: MovieGroup.topRated)
             } else {
                 cell.setMovie(index: indexPath.row, caseMovie: MovieGroup.upcoming)
             }
             return cell
-
         }
+    }
+}
+
+extension ListOfMoviesTableViewCell: FilterCellDelegate {
+    func clickedOn(cell: FilterCell) {
+        for cellAll in filter.visibleCells as! [FilterCell] {
+            cellAll.isSelected = false
+        }
+        cell.isSelected = true
     }
 }
