@@ -147,6 +147,9 @@ extension SearchBarView: UITextFieldDelegate {
     
     func textFieldDidChangeSelection(_ textField: UITextField) {
         xButton.isHidden = false
+        if textInput.text == "" {
+            xButton.isHidden = true
+        }
     }
 }
 

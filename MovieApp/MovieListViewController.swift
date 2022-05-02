@@ -12,14 +12,30 @@ import MovieAppData
 
 
 class MovieListViewController: UIViewController{
-    let movies = Movies.all()
     
     private var searchBarView: SearchBarView!
     private var popisFilmovaGrid: UITableView!
     private var popisFilmovaList: UICollectionView!
     private var layout: UICollectionViewFlowLayout!
-
-
+    
+    var data: [MovieFilterTitleModel] = MovieGroup.allCases.map {
+        let group = $0.self
+        let title = $0.title
+        var filters : [FilterCellModel] = $0.filters.enumerated().map { (index, filter) in
+            return FilterCellModel(filters: filter, underline: index == 0)
+        }
+        let movies = Movies.all().filter { $0.group.contains(group) }
+        return MovieFilterTitleModel(title: title, filters: filters, movies: movies)
+    }
+    
+    var searchData: [TitleDescriptionImageModel] = Movies.all().map{
+        let title = $0.title
+        let description = $0.description
+        let url = $0.imageUrl
+        return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         buildViews()
@@ -53,7 +69,6 @@ class MovieListViewController: UIViewController{
         
         popisFilmovaGrid.isHidden = false
         
-        layout.minimumLineSpacing = 20
         layout.minimumInteritemSpacing = 10
     }
     
@@ -95,7 +110,7 @@ extension MovieListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        5
+        data.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -107,16 +122,14 @@ extension MovieListViewController: UITableViewDataSource {
         else {
             fatalError()
         }
-        cell.set(labelIndex: indexPath.row)
+        let data = data[indexPath.row]
+        cell.selectionStyle = .none
+        cell.set(data: data)
         return cell
     }
 }
 
 extension MovieListViewController: UITableViewDelegate {
-
-    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        nil
-    }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         300
@@ -141,7 +154,7 @@ extension MovieListViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        movies.count
+        searchData.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -150,7 +163,8 @@ extension MovieListViewController: UICollectionViewDataSource {
         else {
             fatalError()
         }
-        cell.set(index: indexPath.row)
+        let searchData = searchData[indexPath.row]
+        cell.set(searchData: searchData)
         return cell
     }
 }

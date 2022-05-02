@@ -58,10 +58,7 @@ class MovieCollectionCell: UICollectionViewCell {
         }
     }
     
-    func setMovie(index: Int, caseMovie: MovieGroup) {
-        let movies = Movies.all()
-        let imageUrl = movies.filter { $0.group.contains(caseMovie) }.map { $0.imageUrl}
-        
-        movieImage.load(urlString: imageUrl[index])
+    func setMovie(movies: MovieModel) {
+        movieImage.load(urlString: movies.imageUrl)
     }
 }

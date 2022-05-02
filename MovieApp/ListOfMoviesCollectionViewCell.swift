@@ -55,7 +55,7 @@ class ListOfMoviesCollectionViewCell: UICollectionViewCell {
         movieTitle.font = .systemFont(ofSize: 16, weight: .bold)
         
         movieDescription.textColor = .gray
-        movieDescription.numberOfLines = 5
+        movieDescription.numberOfLines = 0
     }
 
     func addConstraints() {
@@ -65,27 +65,24 @@ class ListOfMoviesCollectionViewCell: UICollectionViewCell {
         }
         
         movieTitle.snp.makeConstraints{
-            $0.top.equalToSuperview().inset(15)
+            $0.top.equalToSuperview().inset(10)
             $0.leading.equalTo(movieImage.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().inset(10)
+            $0.height.equalTo(20)
         }
         
         movieDescription.snp.makeConstraints{
-            $0.top.equalTo(movieTitle.snp.bottom).offset(10)
+            $0.top.equalTo(movieTitle.snp.bottom).offset(0)
             $0.leading.equalTo(movieImage.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().inset(10)
+            $0.bottom.equalToSuperview().inset(10)
         }
     }
     
-    func set(index: Int) {
-        let movies = Movies.all()
-        let title = movies.map { $0.title }
-        let description = movies.map { $0.description}
-        let imageUrl = movies.map { $0.imageUrl}
-        
-        movieTitle.text = "\(title[index])"
-        movieDescription.text = "\(description[index])"
-        movieImage.load(urlString: imageUrl[index])
+    func set(searchData: TitleDescriptionImageModel) {
+        movieTitle.text = "\(searchData.title)"
+        movieDescription.text = "\(searchData.description)"
+        movieImage.load(urlString: searchData.imageUrl)
     }
 }
 

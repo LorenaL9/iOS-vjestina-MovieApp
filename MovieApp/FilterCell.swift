@@ -11,18 +11,12 @@ import SnapKit
 import MovieAppData
 
 
-protocol FilterCellDelegate: AnyObject{
-    func clickedOn(cell: FilterCell)
-}
-
 class FilterCell: UICollectionViewCell {
     
     static let reuseIdentifier = String(describing: FilterCell.self)
-    private var filterLabel : UIButton!
-    private var underline: UILabel!
+    private var filterLabel : UILabel!
+    private var underline: UIView!
     
-    weak var delegate: FilterCellDelegate?
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         buildViews()
@@ -33,30 +27,18 @@ class FilterCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
-                underline.isHidden = false
-                filterLabel.titleLabel!.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-            } else {
-                underline.isHidden = true
-                filterLabel.titleLabel!.font = UIFont.systemFont(ofSize: 18, weight: .regular)
-            }
-         }
-    }
     
     func buildViews() {
-        filterLabel = UIButton()
+        filterLabel = UILabel()
         addSubview(filterLabel)
-        filterLabel.addTarget(self, action: #selector(onClickButton), for: .touchUpInside)
         
-        underline = UILabel()
+        underline = UIView()
         addSubview(underline)
     }
 
     private func styleViews(){
-        filterLabel.setTitleColor(.black, for: .normal)
+        filterLabel.textAlignment = .center
+        filterLabel.font = UIFont.systemFont(ofSize: 18)
         
         underline.backgroundColor = .black
         underline.isHidden = true
@@ -75,18 +57,16 @@ class FilterCell: UICollectionViewCell {
         }
     }
     
-    func setFilter(index: Int, group: MovieGroup) {
+    func setFilter(filters: FilterCellModel) {
         
-        filterLabel.setTitle("\(group.filters[index].title)", for: .normal)
-        if index == 0{
+        filterLabel.text = "\(filters.filters.title)"
+        
+        if filters.underline == true{
             underline.isHidden = false
-            filterLabel.titleLabel!.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+            filterLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        } else {
+            underline.isHidden = true
+            filterLabel.font = UIFont.systemFont(ofSize: 18, weight: .regular)
         }
     }
-    
-    @objc func onClickButton() {
-        isSelected = true
-        delegate?.clickedOn(cell: self)
-    }
 }
-
