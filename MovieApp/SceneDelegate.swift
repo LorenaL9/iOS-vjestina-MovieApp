@@ -19,9 +19,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        let vc = MovieListViewController()
-        window!.rootViewController = vc
-        window?.makeKeyAndVisible()
+
+        let navigationController = UINavigationController()
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.backgroundColor = UIColor(red: 0.043, green: 0.145, blue: 0.247, alpha: 1)
+        
+        navigationController.navigationBar.scrollEdgeAppearance = navBarAppearance
+        navigationController.navigationBar.standardAppearance = navBarAppearance
+        
+        let router = AppRouter(navigationController: navigationController)
+        router.setStartScreen(in: window)
   
     }
 

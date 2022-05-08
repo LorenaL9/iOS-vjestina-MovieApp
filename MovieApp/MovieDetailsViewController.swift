@@ -23,9 +23,26 @@ class MovieDetailsViewController: UIViewController{
     private var symbolImage: UIImageView!
     private var stackView1: UIStackView!
     private var stackView2: UIStackView!
+    private var router: AppRouterProtocol!
+    private var url: URL!
+    private var movieDetails: MovieDetailsModel!
+    
+    convenience init(router: AppRouterProtocol, url: URL) {
+            self.init()
+            self.router = router
+            self.url = url
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let logo = UIImage(named: "tmdb")
+        let imageView = UIImageView(image: logo)
+        navigationItem.titleView = imageView
+        self.navigationController?.navigationBar.tintColor = .white
+        let dataService = NetworkService()
+        
+        movieDetails = dataService.fetchMovieDetails(url: url)
+      
         buildViews()
     }
     
@@ -37,9 +54,11 @@ class MovieDetailsViewController: UIViewController{
     }
     
     private func createViews(){
-        imageBack = UIImage(named: "iron-man1.jpg")
+        let path = "https://image.tmdb.org/t/p/original\(movieDetails.poster_path)"
+        imageBack = UIImage(named: path)
         
         rectangle = UIImageView()
+        rectangle.load(urlString: path)
         view.addSubview(rectangle)
         
         titleMovie = UILabel()
@@ -47,7 +66,7 @@ class MovieDetailsViewController: UIViewController{
         
         userScorePercentage = UILabel()
         view.addSubview(userScorePercentage)
-        userScorePercentage.text = "76%"
+        userScorePercentage.text = String(movieDetails.vote_average)
         
         userScore = UILabel()
         view.addSubview(userScore)
@@ -59,11 +78,15 @@ class MovieDetailsViewController: UIViewController{
         
         overviewText = UILabel()
         view.addSubview(overviewText)
-        overviewText.text = "After being held captive in an Afghan cave, billionare engineer Tony Stark creates a unique weaponized suit of armor to fight evil."
+        overviewText.text = movieDetails.overview
         
         dateText = UILabel()
         view.addSubview(dateText)
-        dateText.text = "05/02/2008 (US)"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy'-'MM'-'dd"
+        let date: Date = dateFormatter.date(from: movieDetails.release_date)!
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        dateText.text = "\(dateFormatter.string(from: date)) (\(movieDetails.original_language.uppercased()))"
         
         typeDurationText = UILabel()
         view.addSubview(typeDurationText)
@@ -96,7 +119,6 @@ class MovieDetailsViewController: UIViewController{
     private func styleViews(){
         rectangle.contentMode = .scaleAspectFill
         rectangle.clipsToBounds = true
-        rectangle.image = imageBack
         rectangle.frame = CGRect(x: 0, y: 0, width: 100, height: 300)
         
         let coverLayer = CAGradientLayer()
@@ -113,10 +135,11 @@ class MovieDetailsViewController: UIViewController{
         rectangle.layer.insertSublayer(coverLayer, at: 0)
         
         titleMovie.textColor = .white
+        titleMovie.numberOfLines = 0
         titleMovie.font = .systemFont(ofSize: 24)
         var attrs = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .bold)]
-        let name = NSMutableAttributedString(string: "Iron man ", attributes:attrs)
-        let year = NSMutableAttributedString(string: "(2008)")
+        let name = NSMutableAttributedString(string: "\(movieDetails.title) ", attributes:attrs)
+        let year = NSMutableAttributedString(string: "")
         let attributedString = NSMutableAttributedString()
         attributedString.append(name)
         attributedString.append(year)
@@ -132,10 +155,18 @@ class MovieDetailsViewController: UIViewController{
         dateText.font = .systemFont(ofSize: 14)
 
         typeDurationText.textColor = .white
+        typeDurationText.numberOfLines = 0
         typeDurationText.font = .systemFont(ofSize: 14)
         attrs = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14, weight: .bold)]
-        let type = NSMutableAttributedString(string: "Action, Science Fiction, Adventure ")
-        let duration = NSMutableAttributedString(string: "2h 6m", attributes:attrs)
+        var genres = ""
+        for genre in movieDetails.genres {
+            genres = genres + genre.name + ", "
+        }
+        genres.removeLast(2)
+        let type = NSMutableAttributedString(string: "\(genres) ")
+        let (h, m) = minutesToHoursMinutes(min: movieDetails.runtime)
+        let runtime = "\(h)h \(m)m"
+        let duration = NSMutableAttributedString(string: runtime, attributes:attrs)
         let attributedString2 = NSMutableAttributedString()
         attributedString2.append(type)
         attributedString2.append(duration)
@@ -179,11 +210,11 @@ class MovieDetailsViewController: UIViewController{
         }
         titleMovie.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(18)
-            $0.top.equalTo(userScore.snp.bottom).offset(14)
+            $0.top.equalTo(userScore.snp.bottom).offset(10)
         }
         dateText.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(18)
-            $0.top.equalTo(titleMovie.snp.bottom).offset(14)
+            $0.top.equalTo(titleMovie.snp.bottom).offset(10)
         }
         typeDurationText.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(18)
@@ -191,7 +222,7 @@ class MovieDetailsViewController: UIViewController{
         }
         symbolImage.snp.makeConstraints{
             $0.leading.equalTo(rectangle.snp.leading).inset(20)
-            $0.top.equalTo(typeDurationText.snp.bottom).offset(15)
+            $0.top.equalTo(typeDurationText.snp.bottom).offset(10)
         }
         overview.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(18)
@@ -209,5 +240,8 @@ class MovieDetailsViewController: UIViewController{
             $0.leading.trailing.equalToSuperview().inset(18)
             $0.top.equalTo(stackView1.snp.bottom).offset(20)
         }
+    }
+    func minutesToHoursMinutes(min: Int) -> (Int, Int) {
+        return (min / 60, (min % 60))
     }
 }

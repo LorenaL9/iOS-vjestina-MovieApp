@@ -11,34 +11,45 @@ import SnapKit
 import MovieAppData
 
 
-class MovieListViewController: UIViewController{
-    
+class MovieListViewController: UIViewController {
+    private var popular: [MyResult] = []
     private var searchBarView: SearchBarView!
     private var popisFilmovaGrid: UITableView!
     private var popisFilmovaList: UICollectionView!
     private var layout: UICollectionViewFlowLayout!
+    private var router: AppRouterProtocol!
+    private var dataService: NetworkServiceProtocol!
+    private var genres: [Genre] = []
+    private var searchData: [TitleDescriptionImageModel] = []
+    private var data: [MovieGenresTitleModel] = []
     
-    var data: [MovieFilterTitleModel] = MovieGroup.allCases.map {
-        let group = $0.self
-        let title = $0.title
-        var filters : [FilterCellModel] = $0.filters.enumerated().map { (index, filter) in
-            return FilterCellModel(filters: filter, underline: index == 0)
-        }
-        let movies = Movies.all().filter { $0.group.contains(group) }
-        return MovieFilterTitleModel(title: title, filters: filters, movies: movies)
+    convenience init(router: AppRouterProtocol) {
+            self.init()
+            self.router = router
     }
-    
-    var searchData: [TitleDescriptionImageModel] = Movies.all().map{
-        let title = $0.title
-        let description = $0.description
-        let url = $0.imageUrl
-        return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
-    }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let logo = UIImage(named: "tmdb")
+        let imageView = UIImageView(image: logo)
+        navigationItem.titleView = imageView
+        let dataService = NetworkService()
+        let queue = DispatchQueue.global()
+        queue.sync {
+            dataService.fetchTitleDescriptionImage()
+        }
+        queue.sync {
+            dataService.setData()
+        }
+        queue.sync {
+            searchData = dataService.getTitleDescriptionImage()
+        }
+        queue.sync {
+            data = dataService.getMoviesData()
+        }
+        
         buildViews()
+
     }
     
     private func buildViews(){
@@ -75,7 +86,7 @@ class MovieListViewController: UIViewController{
     private func defineLayoutForViews(){
         searchBarView.snp.makeConstraints {
             $0.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(4)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(10)
             $0.height.equalTo(45)
         }
         popisFilmovaList.snp.makeConstraints{
@@ -125,6 +136,7 @@ extension MovieListViewController: UITableViewDataSource {
         let data = data[indexPath.row]
         cell.selectionStyle = .none
         cell.set(data: data)
+        cell.delegateController = self
         return cell
     }
 }
@@ -184,3 +196,11 @@ extension MovieListViewController: SearchInFokusDelegate {
     }
 }
 
+extension MovieListViewController: ChangeControllerDelegate {
+    
+    func changeController(bool: Bool, url: URL) {
+        if bool {
+            router.showMovieDetailsViewController(url: url)
+        } 
+    }
+}

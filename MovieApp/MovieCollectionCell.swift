@@ -58,7 +58,8 @@ class MovieCollectionCell: UICollectionViewCell {
         }
     }
     
-    func setMovie(movies: MovieModel) {
-        movieImage.load(urlString: movies.imageUrl)
+    func setMovie(movies: MyResult) {
+        let url = "https://image.tmdb.org/t/p/original" + movies.poster_path
+        movieImage.load(urlString: url)
     }
 }

@@ -8,7 +8,8 @@
 import MovieAppData
 
 struct FilterCellModel{
-    public let filters: MovieFilter
+    public let filters: Genre
     public var underline: Bool
+    public var movies: [MyResult]
     
 }

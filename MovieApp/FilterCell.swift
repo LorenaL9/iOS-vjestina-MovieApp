@@ -59,7 +59,7 @@ class FilterCell: UICollectionViewCell {
     
     func setFilter(filters: FilterCellModel) {
         
-        filterLabel.text = "\(filters.filters.title)"
+        filterLabel.text = "\(filters.filters.name)"
         
         if filters.underline == true{
             underline.isHidden = false
