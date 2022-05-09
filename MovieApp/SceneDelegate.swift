@@ -27,6 +27,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         navigationController.navigationBar.scrollEdgeAppearance = navBarAppearance
         navigationController.navigationBar.standardAppearance = navBarAppearance
         
+        navigationController.navigationBar.isHidden = true
+        
         let router = AppRouter(navigationController: navigationController)
         router.setStartScreen(in: window)
   

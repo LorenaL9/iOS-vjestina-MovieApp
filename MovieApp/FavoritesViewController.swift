@@ -14,6 +14,9 @@ class FavoritesViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let logo = UIImage(named: "tmdb")
+        let imageView = UIImageView(image: logo)
+        navigationItem.titleView = imageView
         buildViews()
     }
     

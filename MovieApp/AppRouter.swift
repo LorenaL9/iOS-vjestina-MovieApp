@@ -18,6 +18,7 @@ protocol AppRouterProtocol {
 
 class AppRouter: AppRouterProtocol {
     private let navigationController: UINavigationController!
+    private var movieListViewNC: UINavigationController!
     private var checkNetwork: Bool!
 
     init(navigationController: UINavigationController) {
@@ -43,29 +44,35 @@ class AppRouter: AppRouterProtocol {
   
     
     func setStartScreen(in window: UIWindow?) {
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.backgroundColor = UIColor(red: 0.043, green: 0.145, blue: 0.247, alpha: 1)
         
         let movieListViewC = MovieListViewController(router: self)
-        movieListViewC.tabBarItem = UITabBarItem.init(title: "Home", image: UIImage(named: "home"), tag: 0)
-
+        movieListViewNC = UINavigationController(rootViewController: movieListViewC)
+        movieListViewNC.tabBarItem = UITabBarItem.init(title: "Home", image: UIImage(named: "home"), tag: 0)
+        movieListViewNC.navigationBar.scrollEdgeAppearance = navBarAppearance
+        movieListViewNC.navigationBar.standardAppearance = navBarAppearance
+        
         let favoritesViewC = FavoritesViewController(router: self)
-        favoritesViewC.tabBarItem = UITabBarItem.init(title: "Favorites", image: UIImage(named: "favorites"), tag: 1)
-
+        let favoritesViewNC = UINavigationController(rootViewController: favoritesViewC)
+        favoritesViewNC.tabBarItem = UITabBarItem.init(title: "Favorites", image: UIImage(named: "favorites"), tag: 1)
+        favoritesViewNC.navigationBar.scrollEdgeAppearance = navBarAppearance
+        favoritesViewNC.navigationBar.standardAppearance = navBarAppearance
+        
+        
         let tabBarController = UITabBarController()
-        tabBarController.viewControllers = [movieListViewC, favoritesViewC]
+        tabBarController.viewControllers = [movieListViewNC, favoritesViewNC]
+    
         
-        let logo = UIImage(named: "tmdb")
-        let imageView = UIImageView(image: logo)
-        tabBarController.navigationItem.titleView = imageView
+//        monitorNetwork()
+//        sleep(1)
         
-        monitorNetwork()
-        sleep(1)
-        
-        if checkNetwork == true {
+//        if checkNetwork == true {
             navigationController.pushViewController(tabBarController, animated: false)
-
-        } else {
-            noNetwork()
-        }
+            
+//        } else {
+//            noNetwork()
+//        }
         
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
@@ -74,13 +81,13 @@ class AppRouter: AppRouterProtocol {
     
     func showMovieDetailsViewController(url: URL) {
         let vc = MovieDetailsViewController(router: self, url: url)
-        monitorNetwork()
-        sleep(1)
-        if checkNetwork == true {
-            navigationController.pushViewController(vc, animated: true)
-        } else {
-            noNetwork()
-        }
+//        monitorNetwork()
+//        sleep(1)
+//        if checkNetwork == true {
+            movieListViewNC.pushViewController(vc, animated: true)
+//        } else {
+//            noNetwork()
+//        }
     }
 
     func noNetwork() {
