@@ -27,4 +27,17 @@ public enum MovieGroupAPI: CaseIterable {
             return "Top Rated"
         }
     }
+    
+    public var url: String {
+        switch self {
+        case .popular:
+            return "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+        case .trendingDay:
+            return "https://api.themoviedb.org/3/trending/movie/day?api_key=0c3a28c563dda18040decdb4f03a6aa5&page=1"
+        case .trendingWeek:
+            return "https://api.themoviedb.org/3/trending/movie/week?api_key=0c3a28c563dda18040decdb4f03a6aa5&page=1"
+        case .topRated:
+            return "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+        }
+    }
 }

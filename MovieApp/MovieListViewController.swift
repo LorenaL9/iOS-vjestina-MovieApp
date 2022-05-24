@@ -9,13 +9,14 @@ import Foundation
 import UIKit
 import SnapKit
 import MovieAppData
+import Network
 
 
 class MovieListViewController: UIViewController {
-    private var popular: [MyResult] = []
+
     private var searchBarView: SearchBarView!
-    private var popisFilmovaGrid: UITableView!
-    private var popisFilmovaList: UICollectionView!
+    private var filmsGrid: UITableView!
+    private var filmsList: UICollectionView!
     private var layout: UICollectionViewFlowLayout!
     private var router: AppRouterProtocol!
     private var dataService: NetworkServiceProtocol!
@@ -33,22 +34,63 @@ class MovieListViewController: UIViewController {
         let logo = UIImage(named: "tmdb")
         let imageView = UIImageView(image: logo)
         navigationItem.titleView = imageView
+        getData()
+        buildViews()
+
+    }
+    
+    func getData() {
         let dataService = NetworkService()
-        let queue = DispatchQueue.global()
-        queue.sync {
-            dataService.fetchTitleDescriptionImage()
-        }
-        queue.sync {
-            dataService.setData()
-        }
-        queue.sync {
-            searchData = dataService.getTitleDescriptionImage()
-        }
-        queue.sync {
-            data = dataService.getMoviesData()
+
+        dataService.getGenres() { [weak self] result in
+            guard let self = self else {return}
+            switch result {
+            case .success(let value):
+                self.genres = value
+            case .failure(let error):
+                print(error)
+            }
         }
         
-        buildViews()
+        MovieGroupAPI.allCases.map { group in
+            dataService.getMyResult(urlString: group.url) { [weak self] result in
+                guard let self = self else {return}
+                switch result {
+                case .success(let value):
+                    let filters : [FilterCellModel] = self.genres.enumerated().map { (index, filter) in
+                        let movies: [MyResult] = value.filter{ $0.genre_ids.contains(filter.id)}
+                        return FilterCellModel(filters: filter, underline: index == 0, movies: movies)
+                    }
+                    let moviesGroup = filters.filter{ $0.underline == true}
+                    let dataModel: MovieGenresTitleModel = MovieGenresTitleModel(title: group.title, genres: filters, movies: moviesGroup.first!.movies)
+                    self.data.append(dataModel)
+                    DispatchQueue.main.async {
+                        self.filmsGrid.reloadData()
+                    }
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        }
+        
+        dataService.getRecommendedMovies() { [weak self] result in
+            guard let self = self else {return}
+            switch result {
+            case .success(let recommendations):
+                self.searchData = recommendations.map{
+                    let title = $0.title
+                    let description = $0.overview
+                    let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
+                    return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+                }
+                DispatchQueue.main.async {
+                    self.filmsList.reloadData()
+//                    self.buildViews()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
 
     }
     
@@ -66,19 +108,19 @@ class MovieListViewController: UIViewController {
         searchBarView.delegate = self
         view.addSubview(searchBarView)
         
-        popisFilmovaGrid = UITableView()
-        view.addSubview(popisFilmovaGrid)
+        filmsGrid = UITableView()
+        view.addSubview(filmsGrid)
         
         layout = UICollectionViewFlowLayout()
 
-        popisFilmovaList = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        view.addSubview(popisFilmovaList)
+        filmsList = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        view.addSubview(filmsList)
     }
     
     private func styleViews(){
-        popisFilmovaList.isHidden = true
+        filmsList.isHidden = true
         
-        popisFilmovaGrid.isHidden = false
+        filmsGrid.isHidden = false
         
         layout.minimumInteritemSpacing = 10
     }
@@ -89,12 +131,12 @@ class MovieListViewController: UIViewController {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(10)
             $0.height.equalTo(45)
         }
-        popisFilmovaList.snp.makeConstraints{
+        filmsList.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(10)
             $0.top.equalTo(searchBarView.snp.bottom).offset(10)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-        popisFilmovaGrid.snp.makeConstraints{
+        filmsGrid.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(10)
             $0.top.equalTo(searchBarView.snp.bottom).offset(10)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
@@ -102,15 +144,15 @@ class MovieListViewController: UIViewController {
     }
     
     func configureCollectionView() {
-        popisFilmovaList.register(ListOfMoviesCollectionViewCell.self, forCellWithReuseIdentifier: ListOfMoviesCollectionViewCell.reuseIdentifier)
-        popisFilmovaList.dataSource = self
-        popisFilmovaList.delegate = self
+        filmsList.register(ListOfMoviesCollectionViewCell.self, forCellWithReuseIdentifier: ListOfMoviesCollectionViewCell.reuseIdentifier)
+        filmsList.dataSource = self
+        filmsList.delegate = self
     }
     
     func configurateTableView() {
-        popisFilmovaGrid.register(ListOfMoviesTableViewCell.self, forCellReuseIdentifier: ListOfMoviesTableViewCell.reuseIdentifier)
-        popisFilmovaGrid.dataSource = self
-        popisFilmovaGrid.delegate = self
+        filmsGrid.register(ListOfMoviesTableViewCell.self, forCellReuseIdentifier: ListOfMoviesTableViewCell.reuseIdentifier)
+        filmsGrid.dataSource = self
+        filmsGrid.delegate = self
     }
 }
 
@@ -185,12 +227,12 @@ extension MovieListViewController: SearchInFokusDelegate {
     
     func inFocus(bool: Bool) {
         if bool {
-            popisFilmovaList.isHidden = false
-            popisFilmovaGrid.isHidden = true
+            filmsList.isHidden = false
+            filmsGrid.isHidden = true
             
         } else {
-            popisFilmovaList.isHidden = true
-            popisFilmovaGrid.isHidden = false
+            filmsList.isHidden = true
+            filmsGrid.isHidden = false
 
         }
     }
@@ -198,9 +240,9 @@ extension MovieListViewController: SearchInFokusDelegate {
 
 extension MovieListViewController: ChangeControllerDelegate {
     
-    func changeController(bool: Bool, url: URL) {
+    func changeController(bool: Bool, string: String) {
         if bool {
-            router.showMovieDetailsViewController(url: url)
+            router.showMovieDetailsViewController(string: string)
         } 
     }
 }

@@ -8,10 +8,10 @@
 import Foundation
 
 protocol NetworkServiceProtocol{
-    func getMoviesData() -> [MovieGenresTitleModel]
-    func fetchTitleDescriptionImage()
-    func getTitleDescriptionImage() -> [TitleDescriptionImageModel]
-    func setData()
-    func fetchMovieDetails(url: URL) -> MovieDetailsModel
-    func getMovieDetails() -> MovieDetailsModel
+    
+    func getRecommendedMovies(completionHandler: @escaping (Result<[MyResult], Error>) -> Void)
+    func getGenres(completionHandler: @escaping (Result<[Genre], Error>) -> Void)
+    func getMovieDetails(string: String, completionHandler: @escaping (Result<MovieDetailsModel, Error>) -> Void)
+    func getMyResult(urlString: String, completionHandler: @escaping (Result<[MyResult], Error>) -> Void) 
+
 }

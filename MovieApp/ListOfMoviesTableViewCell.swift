@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 protocol ChangeControllerDelegate: AnyObject {
-    func changeController(bool: Bool, url: URL)
+    func changeController(bool: Bool, string: String)
 }
 
 class ListOfMoviesTableViewCell: UITableViewCell {
@@ -182,8 +182,8 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             
         } else {
             let moviesPopular = movieFilterTitleData.genres.filter{ $0.underline == true}
-            guard let url = URL(string: "https://api.themoviedb.org/3/movie/\(moviesPopular.first!.movies[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5") else { return }
-            delegateController?.changeController(bool: true, url: url)
+            let string = "https://api.themoviedb.org/3/movie/\(moviesPopular.first!.movies[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+            delegateController?.changeController(bool: true, string: string)
         }
     }
 }

@@ -24,13 +24,13 @@ class MovieDetailsViewController: UIViewController{
     private var stackView1: UIStackView!
     private var stackView2: UIStackView!
     private var router: AppRouterProtocol!
-    private var url: URL!
+    private var string: String!
     private var movieDetails: MovieDetailsModel!
     
-    convenience init(router: AppRouterProtocol, url: URL) {
+    convenience init(router: AppRouterProtocol, string: String) {
             self.init()
             self.router = router
-            self.url = url
+            self.string = string
     }
     
     override func viewDidLoad() {
@@ -41,8 +41,18 @@ class MovieDetailsViewController: UIViewController{
         self.navigationController?.navigationBar.tintColor = .white
         let dataService = NetworkService()
         
-        movieDetails = dataService.fetchMovieDetails(url: url)
-      
+        dataService.getMovieDetails(string: string) { [weak self] result in
+            guard let self = self else {return}
+            switch result {
+            case .success(let value):
+                self.movieDetails = value
+                DispatchQueue.main.async {
+                    self.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
         buildViews()
     }
     
@@ -54,11 +64,8 @@ class MovieDetailsViewController: UIViewController{
     }
     
     private func createViews(){
-        let path = "https://image.tmdb.org/t/p/original\(movieDetails.poster_path)"
-        imageBack = UIImage(named: path)
         
         rectangle = UIImageView()
-        rectangle.load(urlString: path)
         view.addSubview(rectangle)
         
         titleMovie = UILabel()
@@ -66,7 +73,6 @@ class MovieDetailsViewController: UIViewController{
         
         userScorePercentage = UILabel()
         view.addSubview(userScorePercentage)
-        userScorePercentage.text = String(movieDetails.vote_average)
         
         userScore = UILabel()
         view.addSubview(userScore)
@@ -78,15 +84,9 @@ class MovieDetailsViewController: UIViewController{
         
         overviewText = UILabel()
         view.addSubview(overviewText)
-        overviewText.text = movieDetails.overview
         
         dateText = UILabel()
         view.addSubview(dateText)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy'-'MM'-'dd"
-        let date: Date = dateFormatter.date(from: movieDetails.release_date)!
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-        dateText.text = "\(dateFormatter.string(from: date)) (\(movieDetails.original_language.uppercased()))"
         
         typeDurationText = UILabel()
         view.addSubview(typeDurationText)
@@ -137,13 +137,7 @@ class MovieDetailsViewController: UIViewController{
         titleMovie.textColor = .white
         titleMovie.numberOfLines = 0
         titleMovie.font = .systemFont(ofSize: 24)
-        var attrs = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .bold)]
-        let name = NSMutableAttributedString(string: "\(movieDetails.title) ", attributes:attrs)
-        let year = NSMutableAttributedString(string: "")
-        let attributedString = NSMutableAttributedString()
-        attributedString.append(name)
-        attributedString.append(year)
-        titleMovie.attributedText = attributedString
+        
         
         userScorePercentage.textColor = .white
         userScorePercentage.font = .systemFont(ofSize: 15, weight: .bold)
@@ -157,20 +151,7 @@ class MovieDetailsViewController: UIViewController{
         typeDurationText.textColor = .white
         typeDurationText.numberOfLines = 0
         typeDurationText.font = .systemFont(ofSize: 14)
-        attrs = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14, weight: .bold)]
-        var genres = ""
-        for genre in movieDetails.genres {
-            genres = genres + genre.name + ", "
-        }
-        genres.removeLast(2)
-        let type = NSMutableAttributedString(string: "\(genres) ")
-        let (h, m) = minutesToHoursMinutes(min: movieDetails.runtime)
-        let runtime = "\(h)h \(m)m"
-        let duration = NSMutableAttributedString(string: runtime, attributes:attrs)
-        let attributedString2 = NSMutableAttributedString()
-        attributedString2.append(type)
-        attributedString2.append(duration)
-        typeDurationText.attributedText = attributedString2
+       
 
         overview.textColor = .black
         overview.font = .systemFont(ofSize: 20, weight: .bold)
@@ -241,6 +222,47 @@ class MovieDetailsViewController: UIViewController{
             $0.top.equalTo(stackView1.snp.bottom).offset(20)
         }
     }
+    
+    private func reloadData(){
+        let path = "https://image.tmdb.org/t/p/original\(movieDetails.poster_path)"
+        imageBack = UIImage(named: path)
+        
+        rectangle.load(urlString: path)
+
+        userScorePercentage.text = String(movieDetails.vote_average)
+
+        overviewText.text = movieDetails.overview
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy'-'MM'-'dd"
+        let date: Date = dateFormatter.date(from: movieDetails.release_date)!
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        dateText.text = "\(dateFormatter.string(from: date)) (\(movieDetails.original_language.uppercased()))"
+        
+        var attrs = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .bold)]
+        let name = NSMutableAttributedString(string: "\(movieDetails.title) ", attributes:attrs)
+        let year = NSMutableAttributedString(string: "")
+        let attributedString = NSMutableAttributedString()
+        attributedString.append(name)
+        attributedString.append(year)
+        titleMovie.attributedText = attributedString
+        
+        attrs = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14, weight: .bold)]
+        var genres = ""
+        for genre in movieDetails.genres {
+            genres = genres + genre.name + ", "
+        }
+        genres.removeLast(2)
+        let type = NSMutableAttributedString(string: "\(genres) ")
+        let (h, m) = minutesToHoursMinutes(min: movieDetails.runtime)
+        let runtime = "\(h)h \(m)m"
+        let duration = NSMutableAttributedString(string: runtime, attributes:attrs)
+        let attributedString2 = NSMutableAttributedString()
+        attributedString2.append(type)
+        attributedString2.append(duration)
+        typeDurationText.attributedText = attributedString2
+    }
+    
     func minutesToHoursMinutes(min: Int) -> (Int, Int) {
         return (min / 60, (min % 60))
     }

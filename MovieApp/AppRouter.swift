@@ -11,7 +11,7 @@ import Network
 
 protocol AppRouterProtocol {
     func setStartScreen(in window: UIWindow?)
-    func showMovieDetailsViewController(url: URL)
+    func showMovieDetailsViewController(string: String)
     func noNetwork()
     func monitorNetwork()
 }
@@ -40,8 +40,6 @@ class AppRouter: AppRouterProtocol {
         let queue = DispatchQueue(label: "Monitor")
         monitor.start(queue: queue)
     }
-    
-  
     
     func setStartScreen(in window: UIWindow?) {
         let navBarAppearance = UINavigationBarAppearance()
@@ -79,8 +77,8 @@ class AppRouter: AppRouterProtocol {
         
     }
     
-    func showMovieDetailsViewController(url: URL) {
-        let vc = MovieDetailsViewController(router: self, url: url)
+    func showMovieDetailsViewController(string: String) {
+        let vc = MovieDetailsViewController(router: self, string: string)
 //        monitorNetwork()
 //        sleep(1)
 //        if checkNetwork == true {
