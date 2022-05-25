@@ -42,15 +42,18 @@ class MovieListViewController: UIViewController {
     func getData() {
         let dataService = NetworkService()
 
-        dataService.getGenres() { [weak self] result in
-            guard let self = self else {return}
-            switch result {
-            case .success(let value):
-                self.genres = value
-            case .failure(let error):
-                print(error)
-            }
-        }
+//        dataService.getGenres() { [weak self] result in
+//            guard let self = self else {return}
+//            switch result {
+//            case .success(let value):
+//                self.genres = value
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
+        
+        genres = MoviesRepository(networkService: dataService).fetchGenre()
+        genres.sort(by: {$0.name < $1.name})
         
         MovieGroupAPI.allCases.map { group in
             dataService.getMyResult(urlString: group.url) { [weak self] result in
