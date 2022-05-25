@@ -53,6 +53,27 @@ class MoviesNetworkDataSource {
         }
     }
     
+    func fetchRecommendedNetwork() {
+        networkService.getRecommendedMovies() { result in
+        switch result {
+        case .success(let recommendations):
+            print(recommendations)
+            self.moviesDatabaseDataSource.saveMovieToDatabase(movies: recommendations)
+//            var searchData = recommendations.map{
+//                let title = $0.title
+//                let description = $0.overview
+//                let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
+//                return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+//            }
+//            DispatchQueue.main.async {
+//                    self.buildViews()
+//            }
+        case .failure(let error):
+            print(error)
+        }
+        }
+    }
+    
 //    func getRecommendedMovies(completionHandler: @escaping (Result<[MyResult], Error>) -> Void) {
 //
 //            guard

@@ -24,4 +24,11 @@ class MoviesRepository {
         genres = moviesDatabaseDataSource.fetchGenresFromDatabase()
         return genres
     }
+    
+    func fetchSearch(text: String) -> [MyResult] {
+        var search: [MyResult] = []
+//        moviesNetworkDataSource.fetchRecommendedNetwork()
+        search = moviesDatabaseDataSource.fetchMoviesFromDatabase(text: text)
+        return search
+    }
 }

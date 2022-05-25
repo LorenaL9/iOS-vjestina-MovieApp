@@ -11,9 +11,10 @@ import MovieAppData
 public enum MovieGroupAPI: CaseIterable {
 
     case popular
+    case topRated
     case trendingDay
     case trendingWeek
-    case topRated
+    case recommended
     
     public var title: String {
         switch self {
@@ -25,6 +26,8 @@ public enum MovieGroupAPI: CaseIterable {
             return "What's trending this week"
         case .topRated:
             return "Top Rated"
+        case .recommended:
+            return "Recommended"
         }
     }
     
@@ -38,6 +41,8 @@ public enum MovieGroupAPI: CaseIterable {
             return "https://api.themoviedb.org/3/trending/movie/week?api_key=0c3a28c563dda18040decdb4f03a6aa5&page=1"
         case .topRated:
             return "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+        case .recommended:
+            return "https://api.themoviedb.org/3/movie/103/recommendations?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
         }
     }
 }

@@ -12,6 +12,10 @@ protocol SearchInFokusDelegate: AnyObject {
     func inFocus(bool: Bool)
 }
 
+protocol SearchFilterDelegate: AnyObject {
+    func filter(text: String)
+}
+
 class SearchBarView: UIView {
     private var searchImage: UIImageView!
     private var textInput: UITextField!
@@ -21,7 +25,8 @@ class SearchBarView: UIView {
     private var grayLayout2: UIView!
 
     weak var delegate: SearchInFokusDelegate?
-    
+    weak var delegateFilter: SearchFilterDelegate?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
@@ -150,6 +155,8 @@ extension SearchBarView: UITextFieldDelegate {
         if textInput.text == "" {
             xButton.isHidden = true
         }
+        delegateFilter?.filter(text: textInput.text!)
+        print(textInput.text)
     }
 }
 

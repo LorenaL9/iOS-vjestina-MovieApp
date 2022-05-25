@@ -40,8 +40,7 @@ class MovieListViewController: UIViewController {
     }
     
     func getData() {
-        let dataService = NetworkService()
-
+        dataService = NetworkService()
 //        dataService.getGenres() { [weak self] result in
 //            guard let self = self else {return}
 //            switch result {
@@ -54,6 +53,7 @@ class MovieListViewController: UIViewController {
         
         genres = MoviesRepository(networkService: dataService).fetchGenre()
         genres.sort(by: {$0.name < $1.name})
+        
         
         MovieGroupAPI.allCases.map { group in
             dataService.getMyResult(urlString: group.url) { [weak self] result in
@@ -75,25 +75,33 @@ class MovieListViewController: UIViewController {
                 }
             }
         }
+        let rec = MoviesRepository(networkService: dataService).fetchSearch(text: "")
+        print(rec)
         
-        dataService.getRecommendedMovies() { [weak self] result in
-            guard let self = self else {return}
-            switch result {
-            case .success(let recommendations):
-                self.searchData = recommendations.map{
-                    let title = $0.title
-                    let description = $0.overview
-                    let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
-                    return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
-                }
-                DispatchQueue.main.async {
-                    self.filmsList.reloadData()
-//                    self.buildViews()
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
+        searchData = rec.map{
+                            let title = $0.title
+                            let description = $0.overview
+                            let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
+                            return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+                        }
+//        dataService.getRecommendedMovies() { [weak self] result in
+//            guard let self = self else {return}
+//            switch result {
+//            case .success(let recommendations):
+//                self.searchData = recommendations.map{
+//                    let title = $0.title
+//                    let description = $0.overview
+//                    let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
+//                    return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+//                }
+//                DispatchQueue.main.async {
+//                    self.filmsList.reloadData()
+////                    self.buildViews()
+//                }
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
 
     }
     
@@ -109,6 +117,7 @@ class MovieListViewController: UIViewController {
     private func createViews(){
         searchBarView = SearchBarView()
         searchBarView.delegate = self
+        searchBarView.delegateFilter = self
         view.addSubview(searchBarView)
         
         filmsGrid = UITableView()
@@ -238,6 +247,22 @@ extension MovieListViewController: SearchInFokusDelegate {
             filmsGrid.isHidden = false
 
         }
+    }
+}
+
+extension MovieListViewController: SearchFilterDelegate {
+    
+    func filter(text: String) {
+        let rec = MoviesRepository(networkService: dataService).fetchSearch(text: text)
+        print(rec)
+        
+        searchData = rec.map{
+                            let title = $0.title
+                            let description = $0.overview
+                            let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
+                            return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+                        }
+        self.filmsList.reloadData()
     }
 }
 
