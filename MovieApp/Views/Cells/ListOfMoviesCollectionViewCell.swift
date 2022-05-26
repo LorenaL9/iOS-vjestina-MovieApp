@@ -61,7 +61,7 @@ class ListOfMoviesCollectionViewCell: UICollectionViewCell {
     func addConstraints() {
         movieImage.snp.makeConstraints {
             $0.top.leading.bottom.equalToSuperview().inset(0)
-            $0.width.equalTo(120)
+            $0.width.equalTo(110)
         }
         
         movieTitle.snp.makeConstraints{

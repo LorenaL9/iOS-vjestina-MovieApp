@@ -45,6 +45,9 @@ class MovieCollectionCell: UICollectionViewCell {
         
         let favoriteImageUIImage = UIImage(named: "favorite.png")
         favoriteImage.image = favoriteImageUIImage
+        
+        let favoriteImageUIImageFull = UIImage(named: "favoriteFull.png")
+        favoriteImage.image = favoriteImageUIImageFull
     }
 
     private func addConstraints() {

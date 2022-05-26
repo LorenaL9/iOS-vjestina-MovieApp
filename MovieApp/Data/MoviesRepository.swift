@@ -31,4 +31,11 @@ class MoviesRepository {
         search = moviesDatabaseDataSource.fetchMoviesFromDatabase(text: text)
         return search
     }
+//    
+//    func fetchMovies(urlString: String) -> [MyResult] {
+//        var movies: [MyResult] = []
+//        moviesNetworkDataSource.fetchMovies(urlString: urlString)
+//        movies = moviesDatabaseDataSource.fetchMoviesFromDatabaseGroup(group: "popular")
+//        return movies
+//    }
 }

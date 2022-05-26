@@ -114,7 +114,7 @@ extension ListOfMoviesTableViewCell: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         if collectionView == self.movieCollection {
-            return CGSize(width: 150, height: 200)
+            return CGSize(width: 120, height: 170)
         } else {
             let text = "\(movieFilterTitleData.genres[indexPath.item].filters.name)"
             let textWidth = text.widthOfString(usingFont: UIFont.systemFont(ofSize: 18))

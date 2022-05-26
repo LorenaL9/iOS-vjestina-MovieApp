@@ -31,6 +31,21 @@ public enum MovieGroupAPI: CaseIterable {
         }
     }
     
+    public var id: Int32 {
+        switch self {
+        case .popular:
+            return 1
+        case .topRated:
+            return 2
+        case .trendingDay:
+            return 3
+        case .trendingWeek:
+            return 4
+        case .recommended:
+            return 5
+        }
+    }
+    
     public var url: String {
         switch self {
         case .popular:

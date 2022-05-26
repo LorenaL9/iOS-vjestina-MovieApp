@@ -12,6 +12,7 @@ import Network
 protocol AppRouterProtocol {
     func setStartScreen(in window: UIWindow?)
     func showMovieDetailsViewController(string: String)
+    func showMovieDetailsViewControllerFavorites(string: String)
     func noNetwork()
     func monitorNetwork()
 }
@@ -19,6 +20,7 @@ protocol AppRouterProtocol {
 class AppRouter: AppRouterProtocol {
     private let navigationController: UINavigationController!
     private var movieListViewNC: UINavigationController!
+    private var favoritesViewNC: UINavigationController!
     private var checkNetwork: Bool!
 
     init(navigationController: UINavigationController) {
@@ -52,7 +54,7 @@ class AppRouter: AppRouterProtocol {
         movieListViewNC.navigationBar.standardAppearance = navBarAppearance
         
         let favoritesViewC = FavoritesViewController(router: self)
-        let favoritesViewNC = UINavigationController(rootViewController: favoritesViewC)
+        favoritesViewNC = UINavigationController(rootViewController: favoritesViewC)
         favoritesViewNC.tabBarItem = UITabBarItem.init(title: "Favorites", image: UIImage(named: "favorites"), tag: 1)
         favoritesViewNC.navigationBar.scrollEdgeAppearance = navBarAppearance
         favoritesViewNC.navigationBar.standardAppearance = navBarAppearance
@@ -88,6 +90,10 @@ class AppRouter: AppRouterProtocol {
 //        }
     }
 
+    func showMovieDetailsViewControllerFavorites(string: String) {
+        let vc = MovieDetailsViewController(router: self, string: string)
+        favoritesViewNC.pushViewController(vc, animated: true)
+    }
     func noNetwork() {
         let noNet = NoNetworkViewController(router: self)
         navigationController.pushViewController(noNet, animated: true)

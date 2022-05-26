@@ -73,6 +73,27 @@ class MoviesNetworkDataSource {
         }
         }
     }
+//    
+//    func fetchMovies(urlString: String) {
+//        networkService.getMyResult(urlString: urlString) { result in
+//        switch result {
+//        case .success(let movies):
+////            print(movies)
+//            self.moviesDatabaseDataSource.saveMovieToDatabase(movies: movies)
+////            var searchData = recommendations.map{
+////                let title = $0.title
+////                let description = $0.overview
+////                let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
+////                return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
+////            }
+////            DispatchQueue.main.async {
+////                    self.buildViews()
+////            }
+//        case .failure(let error):
+//            print(error)
+//        }
+//        }
+//    }
     
 //    func getRecommendedMovies(completionHandler: @escaping (Result<[MyResult], Error>) -> Void) {
 //

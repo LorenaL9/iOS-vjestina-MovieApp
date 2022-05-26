@@ -37,9 +37,9 @@
 		C3997709283E7DD20057AB6D /* MoviesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3997708283E7DD20057AB6D /* MoviesRepository.swift */; };
 		C399770C283E7DEC0057AB6D /* MoviesDatabaase.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C399770A283E7DEC0057AB6D /* MoviesDatabaase.xcdatamodeld */; };
 		C399770F283E7E270057AB6D /* MovieGenre+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C399770D283E7E270057AB6D /* MovieGenre+CoreDataClass.swift */; };
-		C3997710283E7E270057AB6D /* MovieGenre+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C399770E283E7E270057AB6D /* MovieGenre+CoreDataProperties.swift */; };
 		C3997718283E90800057AB6D /* Movie+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3997716283E90800057AB6D /* Movie+CoreDataClass.swift */; };
-		C3997719283E90800057AB6D /* Movie+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3997717283E90800057AB6D /* Movie+CoreDataProperties.swift */; };
+		C3997721283F92F70057AB6D /* MovieGenre+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C399771B283F92F70057AB6D /* MovieGenre+CoreDataProperties.swift */; };
+		C3997723283F92F70057AB6D /* Movie+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C399771D283F92F70057AB6D /* Movie+CoreDataProperties.swift */; };
 		C3C70216282547DD00C34FD1 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C70215282547DD00C34FD1 /* AppRouter.swift */; };
 		C3C7021C2825744F00C34FD1 /* MovieGenresTitleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C7021B2825744F00C34FD1 /* MovieGenresTitleModel.swift */; };
 		C3C7021E282574BC00C34FD1 /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C7021D282574BC00C34FD1 /* Genre.swift */; };
@@ -83,9 +83,9 @@
 		C3997708283E7DD20057AB6D /* MoviesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesRepository.swift; sourceTree = "<group>"; };
 		C399770B283E7DEC0057AB6D /* MoviesDatabaase.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MoviesDatabaase.xcdatamodel; sourceTree = "<group>"; };
 		C399770D283E7E270057AB6D /* MovieGenre+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MovieGenre+CoreDataClass.swift"; sourceTree = "<group>"; };
-		C399770E283E7E270057AB6D /* MovieGenre+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MovieGenre+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C3997716283E90800057AB6D /* Movie+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie+CoreDataClass.swift"; sourceTree = "<group>"; };
-		C3997717283E90800057AB6D /* Movie+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C399771B283F92F70057AB6D /* MovieGenre+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MovieGenre+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C399771D283F92F70057AB6D /* Movie+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C3C70215282547DD00C34FD1 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		C3C7021B2825744F00C34FD1 /* MovieGenresTitleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieGenresTitleModel.swift; sourceTree = "<group>"; };
 		C3C7021D282574BC00C34FD1 /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genre.swift; sourceTree = "<group>"; };
@@ -197,9 +197,9 @@
 		C3997715283E811F0057AB6D /* CoreDataModels */ = {
 			isa = PBXGroup;
 			children = (
+				C399771B283F92F70057AB6D /* MovieGenre+CoreDataProperties.swift */,
+				C399771D283F92F70057AB6D /* Movie+CoreDataProperties.swift */,
 				C3997716283E90800057AB6D /* Movie+CoreDataClass.swift */,
-				C3997717283E90800057AB6D /* Movie+CoreDataProperties.swift */,
-				C399770E283E7E270057AB6D /* MovieGenre+CoreDataProperties.swift */,
 				C399770D283E7E270057AB6D /* MovieGenre+CoreDataClass.swift */,
 			);
 			path = CoreDataModels;
@@ -314,15 +314,14 @@
 				C3C70220282574E700C34FD1 /* Genres.swift in Sources */,
 				C362A0322827AAC20021CC50 /* NoNetworkViewController.swift in Sources */,
 				C31405202823B98500B3F949 /* NetworkService.swift in Sources */,
+				C3997721283F92F70057AB6D /* MovieGenre+CoreDataProperties.swift in Sources */,
 				C31404F62800C77C00B3F949 /* TablePersonRole.swift in Sources */,
 				C3C702292827065E00C34FD1 /* SpokenLanguages.swift in Sources */,
 				C399770C283E7DEC0057AB6D /* MoviesDatabaase.xcdatamodeld in Sources */,
 				C3C70225282703ED00C34FD1 /* MovieDetailsModel.swift in Sources */,
-				C3997710283E7E270057AB6D /* MovieGenre+CoreDataProperties.swift in Sources */,
 				C3C70222282575FC00C34FD1 /* MovieGroupAPI.swift in Sources */,
 				C314051A28200AD200B3F949 /* TitleDescriptionImageModel.swift in Sources */,
 				C314052228240DA100B3F949 /* MyResult.swift in Sources */,
-				C3997719283E90800057AB6D /* Movie+CoreDataProperties.swift in Sources */,
 				C3669AFD27F25F1300170F23 /* ViewController.swift in Sources */,
 				C3997703283E7D3C0057AB6D /* CoreDataStack.swift in Sources */,
 				C3C70216282547DD00C34FD1 /* AppRouter.swift in Sources */,
@@ -341,6 +340,7 @@
 				C31405012802290700B3F949 /* ListOfMoviesCollectionViewCell.swift in Sources */,
 				C31404F82801C41500B3F949 /* MovieListViewController.swift in Sources */,
 				C3669AF927F25F1300170F23 /* AppDelegate.swift in Sources */,
+				C3997723283F92F70057AB6D /* Movie+CoreDataProperties.swift in Sources */,
 				C3669AFB27F25F1300170F23 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -23,6 +23,7 @@ class MovieListViewController: UIViewController {
     private var genres: [Genre] = []
     private var searchData: [TitleDescriptionImageModel] = []
     private var data: [MovieGenresTitleModel] = []
+    private var rec: [MyResult] = []
     
     convenience init(router: AppRouterProtocol) {
             self.init()
@@ -75,8 +76,8 @@ class MovieListViewController: UIViewController {
                 }
             }
         }
-        let rec = MoviesRepository(networkService: dataService).fetchSearch(text: "")
-        print(rec)
+        rec = MoviesRepository(networkService: dataService).fetchSearch(text: "")
+//        print(rec)
         
         searchData = rec.map{
                             let title = $0.title
@@ -193,12 +194,19 @@ extension MovieListViewController: UITableViewDataSource {
         cell.delegateController = self
         return cell
     }
+        
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        print(rec[indexPath.row].title)
+//
+//        let string = "https://api.themoviedb.org/3/movie/\(rec[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+//        router.showMovieDetailsViewController(string: string)
+//    }
 }
 
 extension MovieListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        300
+        260
     }
 }
 
@@ -210,7 +218,7 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         let collectionViewWidth = collectionView.frame.width
-        return CGSize(width: collectionViewWidth - 2 * 10, height: 170)
+        return CGSize(width: collectionViewWidth - 2 * 10, height: 150)
     }
 }
 extension MovieListViewController: UICollectionViewDataSource {
@@ -253,8 +261,8 @@ extension MovieListViewController: SearchInFokusDelegate {
 extension MovieListViewController: SearchFilterDelegate {
     
     func filter(text: String) {
-        let rec = MoviesRepository(networkService: dataService).fetchSearch(text: text)
-        print(rec)
+        rec = MoviesRepository(networkService: dataService).fetchSearch(text: text)
+//        print(rec)
         
         searchData = rec.map{
                             let title = $0.title
