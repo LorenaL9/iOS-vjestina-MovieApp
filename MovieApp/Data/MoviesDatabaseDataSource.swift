@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import UIKit
 
 class MoviesDatabaseDataSource {
     private var managedContext: NSManagedObjectContext!
@@ -34,7 +35,7 @@ class MoviesDatabaseDataSource {
                 let results = try managedContext.fetch(request)
                 var genres: [Genre] = []
                 for r in results {
-                    let genre = Genre(id: Int(r.id), name: r.name!)
+                    let genre = Genre(fromModel: r)
                     genres.append(genre)
                 }
                 return genres
@@ -119,6 +120,12 @@ class MoviesDatabaseDataSource {
                 let entity = NSEntityDescription.entity(forEntityName: "Movie", in: managedContext)!
                 movieEntity = Movie(entity: entity, insertInto: managedContext)
                 movieEntity!.favorite = false
+                let urlString = "https://image.tmdb.org/t/p/original" + movie.poster_path
+                let url = URL(string: urlString)!
+                if let data = try? Data(contentsOf: url) {
+                    let image = UIImage(data: data)
+                    movieEntity?.image = image?.jpegData(compressionQuality: 1.0)
+                }
             }
             movieEntity!.title = movie.title
             movieEntity!.overview = movie.overview

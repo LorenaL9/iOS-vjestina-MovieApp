@@ -21,7 +21,6 @@ class MovieListViewController: UIViewController {
     private var router: AppRouterProtocol!
     private var dataService: NetworkServiceProtocol!
     private var genres: [Genre] = []
-    private var searchData: [TitleDescriptionImageModel] = []
     private var search: [MyResult] = []
     private var groups: [MovieGroupAPI] = []
     private var genresUnderline: [FilterCellModel] = []
@@ -47,18 +46,12 @@ class MovieListViewController: UIViewController {
 
         search = MoviesRepository(networkService: dataService).fetchSearch(text: "")
         
+        print(search)
         groups = MovieGroupAPI.allCases
         
         genres.sort(by: {$0.name < $1.name})
 
         print("GENRES: \(genres)")
-        
-        searchData = search.map{
-                            let title = $0.title
-                            let description = $0.overview
-                            let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
-                            return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
-                        }
 
         genresUnderline = genres.enumerated().map { (index, filter) in
                 return FilterCellModel(filters: filter, underline: index == 0)
@@ -186,7 +179,7 @@ extension MovieListViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        searchData.count
+        search.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -195,7 +188,7 @@ extension MovieListViewController: UICollectionViewDataSource {
         else {
             fatalError()
         }
-        let searchData = searchData[indexPath.row]
+        let searchData = search[indexPath.row]
         cell.set(searchData: searchData)
         return cell
     }
@@ -225,12 +218,6 @@ extension MovieListViewController: SearchFilterDelegate {
     
     func filter(text: String) {
         search = MoviesRepository(networkService: dataService).fetchSearch(text: text)
-        searchData = search.map{
-                            let title = $0.title
-                            let description = $0.overview
-                            let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
-                            return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
-                        }
         self.filmsList.reloadData()
     }
 }

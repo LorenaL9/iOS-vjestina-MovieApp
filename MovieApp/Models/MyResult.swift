@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import UIKit
 
-struct MyResult: Codable {
+struct MyResult {
     let adult: Bool
     let backdrop_path: String
     let genre_ids: [Int]
@@ -23,6 +24,7 @@ struct MyResult: Codable {
     let vote_average: Float
     let vote_count: Int
     let favorite: Bool
+    var image: UIImage?
     
     init(fromModel movie: Movie) {
         self.adult  = movie.adult
@@ -40,5 +42,8 @@ struct MyResult: Codable {
         self.vote_count = Int(movie.vote_count)
         self.genre_ids = []
         self.favorite = movie.favorite
+        if let imageData = movie.image as Data? {
+            self.image = UIImage(data: imageData)
+        }
     }
 }

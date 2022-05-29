@@ -66,8 +66,7 @@ class MovieCollectionCell: UICollectionViewCell {
     }
     
     func setMovie(movies: MyResult) {
-        let url = "https://image.tmdb.org/t/p/original" + movies.poster_path
-        movieImage.load(urlString: url)
+        movieImage.image = movies.image
         movie = movies
         if movies.favorite {
             let favoriteImageUIImageFull = UIImage(named: "favoriteFull.png")

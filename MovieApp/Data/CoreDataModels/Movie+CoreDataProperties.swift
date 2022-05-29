@@ -24,6 +24,7 @@ extension Movie {
     @NSManaged public var video: Bool
     @NSManaged public var vote_average: Float
     @NSManaged public var vote_count: Int32
+    @NSManaged public var image: Data?
     @NSManaged public var genre_ids: NSSet?
     @NSManaged public var group: NSSet?
 

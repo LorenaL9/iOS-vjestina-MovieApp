@@ -36,7 +36,7 @@ class MoviesNetworkDataSource {
             switch result {
             case .success(let movies):
                 DispatchQueue.main.async {
-                    print("FETCH MOVIES FROM NETWORK: \(movies)")
+//                    print("FETCH MOVIES FROM NETWORK: \(movies)")
                     self.moviesDatabaseDataSource.saveMovieToDatabase(movies: movies, idGroup: idGroup)
                 }
             case .failure(let error):

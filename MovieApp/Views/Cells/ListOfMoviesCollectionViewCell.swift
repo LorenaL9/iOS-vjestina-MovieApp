@@ -79,10 +79,10 @@ class ListOfMoviesCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func set(searchData: TitleDescriptionImageModel) {
+    func set(searchData: MyResult) {
         movieTitle.text = "\(searchData.title)"
-        movieDescription.text = "\(searchData.description)"
-        movieImage.load(urlString: searchData.imageUrl)
+        movieDescription.text = "\(searchData.overview)"
+        movieImage.image = searchData.image
     }
 }
 
