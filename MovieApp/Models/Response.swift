@@ -9,7 +9,7 @@ import Foundation
 
 struct Response: Codable {
     let page: Int
-    let results: [MyResult]
+    let results: [MyResultNetwork]
     let total_pages: Int
     let total_results: Int
 }

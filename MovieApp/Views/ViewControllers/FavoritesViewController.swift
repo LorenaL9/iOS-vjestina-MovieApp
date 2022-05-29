@@ -28,8 +28,7 @@ class FavoritesViewController: UIViewController{
         let imageView = UIImageView(image: logo)
         navigationItem.titleView = imageView
         networkService = NetworkService()
-        favorites = MoviesRepository(networkService: networkService).fetchSearch(text: "")
-        
+        favorites = MoviesRepository(networkService: networkService).fetchFavoritesFromDatabase()
         buildViews()
     }
     
@@ -44,7 +43,6 @@ class FavoritesViewController: UIViewController{
     private func createViews() {
         favoritesLabel = UILabel()
         view.addSubview(favoritesLabel)
-        
         
         layout = UICollectionViewFlowLayout()
         favoritesCollection = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -112,6 +110,7 @@ extension FavoritesViewController: UICollectionViewDataSource {
         let movies = favorites[indexPath.row]
         cell.setMovie(movies: movies)
         cell.backgroundColor = .systemGray
+        cell.delegateFavorites = self
         return cell
     }
     
@@ -121,3 +120,11 @@ extension FavoritesViewController: UICollectionViewDataSource {
     }
 }
 
+extension FavoritesViewController: ReloadFavoritesDelegate {
+    
+    func reload() {
+        print("Ukloni iz favorita")
+        favorites = MoviesRepository(networkService: networkService).fetchFavoritesFromDatabase()
+        self.favoritesCollection.reloadData()
+    }
+}

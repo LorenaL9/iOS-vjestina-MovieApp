@@ -10,11 +10,18 @@ import UIKit
 import SnapKit
 import MovieAppData
 
+protocol ReloadFavoritesDelegate: AnyObject {
+    func reload()
+}
+
 class MovieCollectionCell: UICollectionViewCell {
     static let reuseIdentifier = String(describing: MovieCollectionCell.self)
 
     private var movieImage: UIImageView!
     private var favoriteImage: UIImageView!
+    private var movie: MyResult!
+    
+    weak var delegateFavorites: ReloadFavoritesDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -33,6 +40,9 @@ class MovieCollectionCell: UICollectionViewCell {
         
         favoriteImage = UIImageView()
         addSubview(favoriteImage)
+        
+        favoriteImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.addToFaavorites)))
+        favoriteImage.isUserInteractionEnabled = true
     }
 
     private func styleViews(){
@@ -42,12 +52,6 @@ class MovieCollectionCell: UICollectionViewCell {
         
         movieImage.contentMode = .scaleAspectFill
         movieImage.clipsToBounds = true
-        
-        let favoriteImageUIImage = UIImage(named: "favorite.png")
-        favoriteImage.image = favoriteImageUIImage
-        
-        let favoriteImageUIImageFull = UIImage(named: "favoriteFull.png")
-        favoriteImage.image = favoriteImageUIImageFull
     }
 
     private func addConstraints() {
@@ -64,5 +68,24 @@ class MovieCollectionCell: UICollectionViewCell {
     func setMovie(movies: MyResult) {
         let url = "https://image.tmdb.org/t/p/original" + movies.poster_path
         movieImage.load(urlString: url)
+        movie = movies
+        if movies.favorite {
+            let favoriteImageUIImageFull = UIImage(named: "favoriteFull.png")
+            favoriteImage.image = favoriteImageUIImageFull
+        } else {
+            let favoriteImageUIImage = UIImage(named: "favorite.png")
+            favoriteImage.image = favoriteImageUIImage
+        }
+    }
+    
+    @objc func addToFaavorites() {
+        if movie.favorite {
+            MoviesRepository(networkService: NetworkService()).removeFromFavorites(movieId: movie.id)
+            print(movie.title)
+        } else {
+            MoviesRepository(networkService: NetworkService()).addToFavorites(movieId: movie.id)
+            print(movie.title)
+        }
+        delegateFavorites?.reload()
     }
 }

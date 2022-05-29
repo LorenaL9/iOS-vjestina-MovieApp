@@ -31,7 +31,7 @@ public enum MovieGroupAPI: CaseIterable {
         }
     }
     
-    public var id: Int32 {
+    public var id: Int {
         switch self {
         case .popular:
             return 1
@@ -60,4 +60,9 @@ public enum MovieGroupAPI: CaseIterable {
             return "https://api.themoviedb.org/3/movie/103/recommendations?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
         }
     }
+    
+    public var allGroups: [MovieGroupAPI] {
+        return [.popular, .topRated, .trendingDay, .trendingWeek, .recommended]
+    }
+    
 }

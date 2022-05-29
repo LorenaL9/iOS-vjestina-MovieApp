@@ -19,9 +19,11 @@ class ListOfMoviesTableViewCell: UITableViewCell {
     private var groupLabel: UILabel!
     private var filter: UICollectionView!
     private var movieCollection: UICollectionView!
-    private var movieFilterTitleData: MovieGenresTitleModel!
     private var filterLayout: UICollectionViewFlowLayout!
     private var movieCollectionLayout: UICollectionViewFlowLayout!
+    private var movies: [MyResult] = []
+    private var genres: [FilterCellModel] = []
+    private var group: MovieGroupAPI!
     
     weak var delegateController: ChangeControllerDelegate?
     
@@ -46,9 +48,18 @@ class ListOfMoviesTableViewCell: UITableViewCell {
         super.prepareForReuse()
     }
     
-    func set(data: MovieGenresTitleModel) {
+    func set(data: MovieGroupAPI, genresModel: [FilterCellModel]) {
         groupLabel.text = "\(data.title)"
-        movieFilterTitleData = data
+        genres = genresModel
+        group = data
+        for genre in genres {
+            if genre.underline == true {
+                movies = MoviesRepository(networkService: NetworkService()).fetchMovies(group: data, genreId: genre.filters.id)
+            }
+        }
+        DispatchQueue.main.async {
+            self.movieCollection.reloadData()
+        }
     }
 
     func buildViews() {
@@ -116,7 +127,7 @@ extension ListOfMoviesTableViewCell: UICollectionViewDelegateFlowLayout {
         if collectionView == self.movieCollection {
             return CGSize(width: 120, height: 170)
         } else {
-            let text = "\(movieFilterTitleData.genres[indexPath.item].filters.name)"
+            let text = "\(genres[indexPath.item].filters.name)"
             let textWidth = text.widthOfString(usingFont: UIFont.systemFont(ofSize: 18))
             return CGSize(width: textWidth + 18, height: 30)
         }
@@ -137,10 +148,11 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == self.movieCollection {
-            let moviesPopular = movieFilterTitleData.genres.filter{ $0.underline == true}
-            return moviesPopular.first!.movies.count
+//            let moviesPopular = movieFilterTitleData.genres.filter{ $0.underline == true}
+//            return moviesPopular.first!.movies.count
+            return movies.count
         } else {
-            return movieFilterTitleData.genres.count
+            return genres.count
         }
     }
 
@@ -152,7 +164,7 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             else {
                 fatalError()
             }
-            let filters = movieFilterTitleData.genres[indexPath.row]
+            let filters = genres[indexPath.row]
             cell.setFilter(filters: filters)
             return cell
         }
@@ -163,27 +175,47 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             else {
                 fatalError()
             }
-            let moviesCategory = movieFilterTitleData.genres.filter{ $0.underline == true}
-            let movies = moviesCategory.first!.movies[indexPath.row]
+//            let moviesCategory = movieFilterTitleData.genres.filter{ $0.underline == true}
+//            let movies = moviesCategory.first!.movies[indexPath.row]
+            for genre in genres {
+                if genre.underline == true {
+                    movies = MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id)
+                }
+            }
+            let movies = movies[indexPath.row]
             cell.setMovie(movies: movies)
+            cell.backgroundColor = .systemGray
+            cell.delegateFavorites = self
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == self.filter {
-            let filters : [FilterCellModel] = movieFilterTitleData.genres.enumerated().map { (index, filter) in
-                return FilterCellModel(filters: filter.filters, underline: index == indexPath.row, movies: filter.movies)
+            let filters : [FilterCellModel] = genres.enumerated().map { (index, filter) in
+                return FilterCellModel(filters: filter.filters, underline: index == indexPath.row)
             }
-            movieFilterTitleData.genres = filters
+            genres = filters
+            for genre in genres {
+                if genre.underline == true {
+                    movies = MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id)
+                }
+            }
             collectionView.reloadData()
             let coll = self.movieCollection
             coll!.reloadData()
             
         } else {
-            let moviesPopular = movieFilterTitleData.genres.filter{ $0.underline == true}
-            let string = "https://api.themoviedb.org/3/movie/\(moviesPopular.first!.movies[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+            let string = "https://api.themoviedb.org/3/movie/\(movies[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
             delegateController?.changeController(bool: true, string: string)
         }
     }
 }
+
+extension ListOfMoviesTableViewCell: ReloadFavoritesDelegate {
+    func reload() {
+        self.movieCollection.reloadData()
+    }
+}
+
+

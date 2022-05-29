@@ -13,29 +13,44 @@ class MoviesRepository {
     private var moviesNetworkDataSource: MoviesNetworkDataSource!
     
     init(networkService: NetworkServiceProtocol) {
-        self.moviesNetworkDataSource = MoviesNetworkDataSource(networkService: networkService)
         self.moviesDatabaseDataSource = MoviesDatabaseDataSource()
+        self.moviesNetworkDataSource = MoviesNetworkDataSource(networkService: networkService, moviesDatabaseDataSource: moviesDatabaseDataSource )
     }
-    
     
     func fetchGenre() -> [Genre] {
         var genres: [Genre] = []
-//        moviesNetworkDataSource.fetchGenreNetwork()
+        moviesNetworkDataSource.fetchGenreNetwork()
         genres = moviesDatabaseDataSource.fetchGenresFromDatabase()
+//        moviesDatabaseDataSource.deleteAllGenres()
         return genres
     }
     
     func fetchSearch(text: String) -> [MyResult] {
         var search: [MyResult] = []
-//        moviesNetworkDataSource.fetchRecommendedNetwork()
         search = moviesDatabaseDataSource.fetchMoviesFromDatabase(text: text)
         return search
     }
-//    
-//    func fetchMovies(urlString: String) -> [MyResult] {
-//        var movies: [MyResult] = []
-//        moviesNetworkDataSource.fetchMovies(urlString: urlString)
-//        movies = moviesDatabaseDataSource.fetchMoviesFromDatabaseGroup(group: "popular")
-//        return movies
-//    }
+    
+    func fetchMovies(group: MovieGroupAPI, genreId: Int) -> [MyResult] {
+        var movies: [MyResult] = []
+        moviesNetworkDataSource.fetchMoviesFromNetwork(urlString: group.url, idGroup: group.id)
+        movies = moviesDatabaseDataSource.fetchMoviesFromDatabaseGroupGenre(groupId: group.id, genreId: genreId)
+//        moviesDatabaseDataSource.deleteAllMovies()
+        return movies
+    }
+
+    
+    func fetchFavoritesFromDatabase() -> [MyResult] {
+        var movies: [MyResult] = []
+        movies = moviesDatabaseDataSource.fetchFavorites()
+        return movies
+    }
+    
+    func addToFavorites(movieId: Int) {
+        moviesDatabaseDataSource.addToFavorites(movieId: movieId)
+    }
+    
+    func removeFromFavorites(movieId: Int) {
+        moviesDatabaseDataSource.removeFromFavorites(movieId: movieId)
+    }
 }

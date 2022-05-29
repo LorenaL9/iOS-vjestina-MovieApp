@@ -22,8 +22,9 @@ class MovieListViewController: UIViewController {
     private var dataService: NetworkServiceProtocol!
     private var genres: [Genre] = []
     private var searchData: [TitleDescriptionImageModel] = []
-    private var data: [MovieGenresTitleModel] = []
-    private var rec: [MyResult] = []
+    private var search: [MyResult] = []
+    private var groups: [MovieGroupAPI] = []
+    private var genresUnderline: [FilterCellModel] = []
     
     convenience init(router: AppRouterProtocol) {
             self.init()
@@ -39,72 +40,36 @@ class MovieListViewController: UIViewController {
         buildViews()
 
     }
-    
     func getData() {
         dataService = NetworkService()
-//        dataService.getGenres() { [weak self] result in
-//            guard let self = self else {return}
-//            switch result {
-//            case .success(let value):
-//                self.genres = value
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
         
         genres = MoviesRepository(networkService: dataService).fetchGenre()
+
+        search = MoviesRepository(networkService: dataService).fetchSearch(text: "")
+        
+        groups = MovieGroupAPI.allCases
+        
         genres.sort(by: {$0.name < $1.name})
+
+        print("GENRES: \(genres)")
         
-        
-        MovieGroupAPI.allCases.map { group in
-            dataService.getMyResult(urlString: group.url) { [weak self] result in
-                guard let self = self else {return}
-                switch result {
-                case .success(let value):
-                    let filters : [FilterCellModel] = self.genres.enumerated().map { (index, filter) in
-                        let movies: [MyResult] = value.filter{ $0.genre_ids.contains(filter.id)}
-                        return FilterCellModel(filters: filter, underline: index == 0, movies: movies)
-                    }
-                    let moviesGroup = filters.filter{ $0.underline == true}
-                    let dataModel: MovieGenresTitleModel = MovieGenresTitleModel(title: group.title, genres: filters, movies: moviesGroup.first!.movies)
-                    self.data.append(dataModel)
-                    DispatchQueue.main.async {
-                        self.filmsGrid.reloadData()
-                    }
-                case .failure(let error):
-                    print(error)
-                }
-            }
-        }
-        rec = MoviesRepository(networkService: dataService).fetchSearch(text: "")
-//        print(rec)
-        
-        searchData = rec.map{
+        searchData = search.map{
                             let title = $0.title
                             let description = $0.overview
                             let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
                             return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
                         }
-//        dataService.getRecommendedMovies() { [weak self] result in
-//            guard let self = self else {return}
-//            switch result {
-//            case .success(let recommendations):
-//                self.searchData = recommendations.map{
-//                    let title = $0.title
-//                    let description = $0.overview
-//                    let url = "https://image.tmdb.org/t/p/original" + $0.poster_path
-//                    return TitleDescriptionImageModel(title: title, description: description, imageUrl: url)
-//                }
-//                DispatchQueue.main.async {
-//                    self.filmsList.reloadData()
-////                    self.buildViews()
-//                }
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
 
+        genresUnderline = genres.enumerated().map { (index, filter) in
+                return FilterCellModel(filters: filter, underline: index == 0)
+        }
+     
+        DispatchQueue.main.async {
+            self.filmsList.reloadData()
+            self.filmsGrid.reloadData()
+        }
     }
+  
     
     private func buildViews(){
         view.backgroundColor = .white
@@ -176,7 +141,7 @@ extension MovieListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        data.count
+        groups.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -188,19 +153,12 @@ extension MovieListViewController: UITableViewDataSource {
         else {
             fatalError()
         }
-        let data = data[indexPath.row]
+        let data = groups[indexPath.row]
         cell.selectionStyle = .none
-        cell.set(data: data)
+        cell.set(data: data, genresModel: genresUnderline)
         cell.delegateController = self
         return cell
     }
-        
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print(rec[indexPath.row].title)
-//
-//        let string = "https://api.themoviedb.org/3/movie/\(rec[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
-//        router.showMovieDetailsViewController(string: string)
-//    }
 }
 
 extension MovieListViewController: UITableViewDelegate {
@@ -241,6 +199,11 @@ extension MovieListViewController: UICollectionViewDataSource {
         cell.set(searchData: searchData)
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let string = "https://api.themoviedb.org/3/movie/\(search[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
+        router.showMovieDetailsViewController(string: string)
+    }
 }
 
 extension MovieListViewController: SearchInFokusDelegate {
@@ -261,10 +224,8 @@ extension MovieListViewController: SearchInFokusDelegate {
 extension MovieListViewController: SearchFilterDelegate {
     
     func filter(text: String) {
-        rec = MoviesRepository(networkService: dataService).fetchSearch(text: text)
-//        print(rec)
-        
-        searchData = rec.map{
+        search = MoviesRepository(networkService: dataService).fetchSearch(text: text)
+        searchData = search.map{
                             let title = $0.title
                             let description = $0.overview
                             let url = "https://image.tmdb.org/t/p/original" + $0.poster_path

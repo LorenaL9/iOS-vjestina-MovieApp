@@ -22,4 +22,23 @@ struct MyResult: Codable {
     let video: Bool
     let vote_average: Float
     let vote_count: Int
+    let favorite: Bool
+    
+    init(fromModel movie: Movie) {
+        self.adult  = movie.adult
+        self.backdrop_path = movie.backdrop_path ?? ""
+        self.id = Int(movie.id)
+        self.original_language =  movie.original_language ?? ""
+        self.original_title = movie.original_title ?? ""
+        self.overview = movie.overview ?? ""
+        self.popularity = movie.popularity
+        self.poster_path = movie.poster_path ?? ""
+        self.release_date = movie.release_date ?? ""
+        self.title = movie.title ?? ""
+        self.video = movie.video
+        self.vote_average = movie.vote_average
+        self.vote_count = Int(movie.vote_count)
+        self.genre_ids = []
+        self.favorite = movie.favorite
+    }
 }

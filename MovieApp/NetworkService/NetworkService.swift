@@ -24,7 +24,7 @@ enum Result<Success, Failure> where Failure : Error {
 class NetworkService: NetworkServiceProtocol{
     private var url: URL!
 
-    func getMyResult(urlString: String, completionHandler: @escaping (Result<[MyResult], Error>) -> Void) {
+    func getMyResult(urlString: String, completionHandler: @escaping (Result<[MyResultNetwork], Error>) -> Void) {
 
             guard
                 let url = URL(string: urlString)
@@ -62,27 +62,6 @@ class NetworkService: NetworkServiceProtocol{
                     completionHandler(.failure(RequestError.serverError))
                 case .success(let value):
                     completionHandler(.success(value.genres))
-                }
-            }
-    }
-    
-    func getRecommendedMovies(completionHandler: @escaping (Result<[MyResult], Error>) -> Void) {
-
-            guard
-                let url = URL(string: "https://api.themoviedb.org/3/movie/103/recommendations?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5")
-            else {
-                completionHandler(.failure(RequestError.clientError))
-                return
-            }
-        
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            executeUrlRequest(request) { (result: Result<Response, RequestError>) in
-                switch result {
-                case .failure:
-                    completionHandler(.failure(RequestError.serverError))
-                case .success(let value):
-                    completionHandler(.success(value.results))
                 }
             }
     }

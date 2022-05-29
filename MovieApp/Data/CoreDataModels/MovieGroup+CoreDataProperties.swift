@@ -1,22 +1,22 @@
 
+
 import Foundation
 import CoreData
 
 
-extension MovieGenre {
+extension MovieGroup {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<MovieGenre> {
-        return NSFetchRequest<MovieGenre>(entityName: "MovieGenre")
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<MovieGroup> {
+        return NSFetchRequest<MovieGroup>(entityName: "MovieGroup")
     }
 
-    @NSManaged public var id: Int32
-    @NSManaged public var name: String!
+    @NSManaged public var name: Int32
     @NSManaged public var movies: NSSet?
-    
+
 }
 
 // MARK: Generated accessors for movies
-extension MovieGenre {
+extension MovieGroup {
 
     @objc(addMoviesObject:)
     @NSManaged public func addToMovies(_ value: Movie)
@@ -32,6 +32,6 @@ extension MovieGenre {
 
 }
 
-extension MovieGenre : Identifiable {
+extension MovieGroup : Identifiable {
 
 }

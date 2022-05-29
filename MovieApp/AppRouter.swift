@@ -14,33 +14,17 @@ protocol AppRouterProtocol {
     func showMovieDetailsViewController(string: String)
     func showMovieDetailsViewControllerFavorites(string: String)
     func noNetwork()
-    func monitorNetwork()
 }
 
 class AppRouter: AppRouterProtocol {
     private let navigationController: UINavigationController!
     private var movieListViewNC: UINavigationController!
     private var favoritesViewNC: UINavigationController!
-    private var checkNetwork: Bool!
+    private var networkStatus: NetworkStatus!
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
-    }
-    func monitorNetwork() {
-        let monitor = NWPathMonitor()
-        monitor.pathUpdateHandler = { path in
-            if path.status == .satisfied {
-                print("We're connected!")
-                self.checkNetwork = true
-            } else {
-                print("No connection.")
-                self.checkNetwork = false
-            }
-
-            print(path.isExpensive)
-        }
-        let queue = DispatchQueue(label: "Monitor")
-        monitor.start(queue: queue)
+        self.networkStatus = NetworkStatus()
     }
     
     func setStartScreen(in window: UIWindow?) {
@@ -59,20 +43,11 @@ class AppRouter: AppRouterProtocol {
         favoritesViewNC.navigationBar.scrollEdgeAppearance = navBarAppearance
         favoritesViewNC.navigationBar.standardAppearance = navBarAppearance
         
-        
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [movieListViewNC, favoritesViewNC]
-    
         
-//        monitorNetwork()
-//        sleep(1)
-        
-//        if checkNetwork == true {
-            navigationController.pushViewController(tabBarController, animated: false)
-            
-//        } else {
-//            noNetwork()
-//        }
+        networkStatus.monitorNetwork()
+        navigationController.pushViewController(tabBarController, animated: false)
         
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
@@ -81,13 +56,9 @@ class AppRouter: AppRouterProtocol {
     
     func showMovieDetailsViewController(string: String) {
         let vc = MovieDetailsViewController(router: self, string: string)
-//        monitorNetwork()
-//        sleep(1)
-//        if checkNetwork == true {
-            movieListViewNC.pushViewController(vc, animated: true)
-//        } else {
-//            noNetwork()
-//        }
+
+        movieListViewNC.pushViewController(vc, animated: true)
+
     }
 
     func showMovieDetailsViewControllerFavorites(string: String) {
