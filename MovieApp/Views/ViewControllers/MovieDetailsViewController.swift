@@ -19,7 +19,7 @@ class MovieDetailsViewController: UIViewController{
     private var overview: UILabel!
     private var overviewText: UILabel!
     private var dateText: UILabel!
-    private var typeDurationText: UILabel!
+    private var genresDurationText: UILabel!
     private var symbolImage: UIImageView!
     private var stackView1: UIStackView!
     private var stackView2: UIStackView!
@@ -31,6 +31,40 @@ class MovieDetailsViewController: UIViewController{
             self.init()
             self.router = router
             self.string = string
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        titleMovie.transform = titleMovie.transform.translatedBy(x: view.frame.width, y: 0)
+        dateText.transform = dateText.transform.translatedBy(x: view.frame.width, y: 0)
+        genresDurationText.transform = dateText.transform.translatedBy(x: view.frame.width, y: 0)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        UIView.animate(
+            withDuration: 1,
+            delay: 0,
+            options: .curveLinear,
+            animations: {
+                self.titleMovie.transform = .identity
+            })
+        
+        UIView.animate(
+            withDuration: 1,
+            delay: 0.5,
+            options: .curveLinear,
+            animations: {
+                self.dateText.transform = .identity
+            })
+        
+        UIView.animate(
+            withDuration: 1,
+            delay: 0.75,
+            options: .curveEaseInOut,
+            animations: {
+                self.genresDurationText.transform = .identity
+            })
     }
     
     override func viewDidLoad() {
@@ -88,8 +122,8 @@ class MovieDetailsViewController: UIViewController{
         dateText = UILabel()
         view.addSubview(dateText)
         
-        typeDurationText = UILabel()
-        view.addSubview(typeDurationText)
+        genresDurationText = UILabel()
+        view.addSubview(genresDurationText)
         
         symbolImage =  UIImageView()
         rectangle.addSubview(symbolImage)
@@ -148,9 +182,9 @@ class MovieDetailsViewController: UIViewController{
         dateText.textColor = .white
         dateText.font = .systemFont(ofSize: 14)
 
-        typeDurationText.textColor = .white
-        typeDurationText.numberOfLines = 0
-        typeDurationText.font = .systemFont(ofSize: 14)
+        genresDurationText.textColor = .white
+        genresDurationText.numberOfLines = 0
+        genresDurationText.font = .systemFont(ofSize: 14)
        
 
         overview.textColor = .black
@@ -197,13 +231,13 @@ class MovieDetailsViewController: UIViewController{
             $0.leading.trailing.equalToSuperview().inset(18)
             $0.top.equalTo(titleMovie.snp.bottom).offset(10)
         }
-        typeDurationText.snp.makeConstraints{
+        genresDurationText.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(18)
             $0.top.equalTo(dateText.snp.bottom).offset(6)
         }
         symbolImage.snp.makeConstraints{
             $0.leading.equalTo(rectangle.snp.leading).inset(20)
-            $0.top.equalTo(typeDurationText.snp.bottom).offset(10)
+            $0.top.equalTo(genresDurationText.snp.bottom).offset(10)
         }
         overview.snp.makeConstraints{
             $0.leading.trailing.equalToSuperview().inset(18)
@@ -260,7 +294,7 @@ class MovieDetailsViewController: UIViewController{
         let attributedString2 = NSMutableAttributedString()
         attributedString2.append(type)
         attributedString2.append(duration)
-        typeDurationText.attributedText = attributedString2
+        genresDurationText.attributedText = attributedString2
     }
     
     func minutesToHoursMinutes(min: Int) -> (Int, Int) {
