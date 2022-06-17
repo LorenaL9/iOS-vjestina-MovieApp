@@ -40,8 +40,7 @@ class MovieDetailsViewController: UIViewController{
         genresDurationText.transform = dateText.transform.translatedBy(x: view.frame.width, y: 0)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    func setAnimation() {
         UIView.animate(
             withDuration: 1,
             delay: 0,
@@ -295,6 +294,7 @@ class MovieDetailsViewController: UIViewController{
         attributedString2.append(type)
         attributedString2.append(duration)
         genresDurationText.attributedText = attributedString2
+        setAnimation()
     }
     
     func minutesToHoursMinutes(min: Int) -> (Int, Int) {

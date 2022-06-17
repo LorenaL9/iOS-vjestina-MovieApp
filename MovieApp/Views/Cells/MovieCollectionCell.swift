@@ -62,6 +62,7 @@ class MovieCollectionCell: UICollectionViewCell {
         
         favoriteImage.snp.makeConstraints {
             $0.top.leading.equalToSuperview().inset(8)
+            $0.width.height.equalTo(32)
         }
     }
     
@@ -81,10 +82,23 @@ class MovieCollectionCell: UICollectionViewCell {
         if movie.favorite {
             MoviesRepository(networkService: NetworkService()).removeFromFavorites(movieId: movie.id)
             print(movie.title)
+            UIView.transition(with: favoriteImage,
+                              duration: 1,
+                              options: .transitionCrossDissolve,
+                              animations: { self.favoriteImage.image = UIImage(named: "favorite.png")},
+                              completion: { _ in
+                            self.delegateFavorites?.reload()
+            })
         } else {
             MoviesRepository(networkService: NetworkService()).addToFavorites(movieId: movie.id)
             print(movie.title)
+            UIView.transition(with: favoriteImage,
+                              duration: 0.2,
+                              options: .transitionCrossDissolve,
+                              animations: { self.favoriteImage.image = UIImage(named: "favoriteFill.png")},
+                              completion: { _ in
+                            self.delegateFavorites?.reload()
+            })
         }
-        delegateFavorites?.reload()
     }
 }
