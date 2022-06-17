@@ -31,6 +31,10 @@ class FavoritesViewController: UIViewController{
         favorites = MoviesRepository(networkService: networkService).fetchFavoritesFromDatabase()
         buildViews()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        favorites = MoviesRepository(networkService: networkService).fetchFavoritesFromDatabase()
+        favoritesCollection.reloadData()
+    }
     
     private func buildViews(){
         view.backgroundColor = .white

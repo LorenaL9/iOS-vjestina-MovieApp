@@ -17,30 +17,34 @@ class MoviesNetworkDataSource {
         self.moviesDatabaseDataSource = moviesDatabaseDataSource
     }
 
-    func fetchGenreNetwork() {
-        networkService.getGenres() {result in
+    func fetchGenreNetwork(completionHandler: @escaping ([Genre]) -> Void) {
+        networkService.getGenres() { result in
             switch result {
             case .success(let value):
-                print("FETCH GENRES FROM NETWORK: \(value)")
                 DispatchQueue.main.async {
-                    self.moviesDatabaseDataSource.saveGenreToDatabase(genres: value)
+                    completionHandler(value)
                 }
             case .failure(let error):
                 print(error)
+                DispatchQueue.main.async {
+                    completionHandler([])
+                }
             }
         }
     }
     
-    func fetchMoviesFromNetwork(urlString: String, idGroup: Int) {
+    func fetchMoviesFromNetwork(urlString: String, comletionHandler: @escaping ([MyResultNetwork]) -> Void) {
         networkService.getMyResult(urlString: urlString) { result in
             switch result {
             case .success(let movies):
                 DispatchQueue.main.async {
-//                    print("FETCH MOVIES FROM NETWORK: \(movies)")
-                    self.moviesDatabaseDataSource.saveMovieToDatabase(movies: movies, idGroup: idGroup)
+                    comletionHandler(movies)
                 }
             case .failure(let error):
                 print(error)
+                DispatchQueue.main.async {
+                    comletionHandler([])
+                }
             }
         }
     }

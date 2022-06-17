@@ -16,7 +16,7 @@ class MoviesDatabaseDataSource {
         self.managedContext = CoreDataStack().persistentContainer.viewContext
     }
     
-    func saveGenreToDatabase(genres: [Genre]) {
+    func saveGenreToDatabase(genres: [Genre], completionHandler: @escaping () -> Void) {
         for genre in genres {
             var genreEntity = fetchGenre(idGenre: genre.id)
             if genreEntity == nil {
@@ -27,10 +27,16 @@ class MoviesDatabaseDataSource {
             genreEntity!.name = genre.name
         }
         try? managedContext.save()
+        DispatchQueue.main.async {
+            print("Save genre to database")
+            completionHandler()
+        }
     }
     
-    func fetchGenresFromDatabase() -> [Genre] {
+    func fetchGenresFromDatabase(completionHandler: @escaping ([Genre]) -> Void){
         let request: NSFetchRequest<MovieGenre> = MovieGenre.fetchRequest()
+        let sorted = NSSortDescriptor(key: "name", ascending: true)
+        request.sortDescriptors = [sorted]
             do {
                 let results = try managedContext.fetch(request)
                 var genres: [Genre] = []
@@ -38,10 +44,14 @@ class MoviesDatabaseDataSource {
                     let genre = Genre(fromModel: r)
                     genres.append(genre)
                 }
-                return genres
+                DispatchQueue.main.async {
+                    completionHandler(genres)
+                }
             } catch let error as NSError {
                 print("Error \(error) | Info: \(error.userInfo)")
-        return []
+                DispatchQueue.main.async {
+                    completionHandler([])
+                }
         }
     }
     
@@ -107,16 +117,14 @@ class MoviesDatabaseDataSource {
         try? managedContext.save()
     }
     
-    func saveMovieToDatabase(movies: [MyResultNetwork], idGroup: Int) {
-        print("Spremam filmove u bazu")
+    func saveMovieToDatabase(movies: [MyResultNetwork], idGroup: Int, completionHandler: @escaping() -> Void) {
         if fetchGroup(withId: idGroup) == nil {
             saveGroup(id: idGroup)
         }
-        let group = fetchGroup(withId: idGroup)!
         for movie in movies {
             var movieEntity = fetchMovie(idMovie: movie.id)
             if movieEntity == nil {
-                print("Film ne postoji u bazi")
+                print("Film ne postoji u bazi, sprema se i slika")
                 let entity = NSEntityDescription.entity(forEntityName: "Movie", in: managedContext)!
                 movieEntity = Movie(entity: entity, insertInto: managedContext)
                 movieEntity!.favorite = false
@@ -150,13 +158,10 @@ class MoviesDatabaseDataSource {
                 let genre = fetchGenre(idGenre: g)
                 genre?.addToMovies(movieEntity!)
             }
-            
-//            DispatchQueue.main.async {
-//                for g in movie.genre_ids {
-//                    self.movieToGenre(id: g, movie: movie.id)
-//                }
-//                self.movieToGroup(idGroup: idGroup, movieId: movie.id)
-//            }
+            DispatchQueue.main.async {
+                print("Save movie to database")
+                completionHandler()
+            }
         }
     }
 
@@ -195,7 +200,7 @@ class MoviesDatabaseDataSource {
         try? managedContext.save()
     }
 
-    func fetchMoviesFromDatabase(text: String) -> [MyResult] {
+    func fetchMoviesFromDatabase(text: String, completionHandler: @escaping ([MyResult]) -> Void) {
         let request: NSFetchRequest<Movie> = Movie.fetchRequest()
         if (text != "") {
             let predicate = NSPredicate(format: "title CONTAINS[c] '\(text)'")
@@ -208,28 +213,40 @@ class MoviesDatabaseDataSource {
                     let movie = MyResult(fromModel: m)
                     movies.append(movie)
                 }
-                return movies
+                DispatchQueue.main.async {
+                    completionHandler(movies)
+                }
             } catch let error as NSError {
                 print("Error \(error) | Info: \(error.userInfo)")
-        return []
+                DispatchQueue.main.async {
+                    completionHandler([])
+                }
         }
     }
     
-    func fetchMoviesFromDatabaseGroupGenre(groupId: Int, genreId: Int) -> [MyResult] {
+    func fetchMoviesFromDatabaseGroupGenre(groupId: Int, genreId: Int, completionHandler: @escaping ([MyResult]) -> Void) {
         let request: NSFetchRequest<Movie> = Movie.fetchRequest()
+        let predicateGroup = NSPredicate(format: "%@ in group.name", "\(groupId)")
+        let predicateGenre = NSPredicate(format: "%@ in genre_ids.id", "\(genreId)")
+        let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [predicateGroup, predicateGenre])
+        let sorted = NSSortDescriptor(key: "title", ascending: true)
+        request.sortDescriptors = [sorted]
+        request.predicate = andPredicate
             do {
                 let results = try managedContext.fetch(request)
                 var movies: [MyResult] = []
                 for m in results {
-                    if (m.group!.contains(fetchGroup(withId: groupId)) && m.genre_ids!.contains(fetchGenre(idGenre: genreId))) {
-                        let movie = MyResult(fromModel: m)
-                        movies.append(movie)
-                    }
+                    let movie = MyResult(fromModel: m)
+                    movies.append(movie)
                 }
-                return movies
+                DispatchQueue.main.async {
+                    completionHandler(movies)
+                }
             } catch let error as NSError {
                 print("Error \(error) | Info: \(error.userInfo)")
-        return []
+                DispatchQueue.main.async {
+                    completionHandler([])
+                }
         }
     }
     

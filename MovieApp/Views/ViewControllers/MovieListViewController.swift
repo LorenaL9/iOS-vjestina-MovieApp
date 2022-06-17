@@ -24,6 +24,7 @@ class MovieListViewController: UIViewController {
     private var search: [MyResult] = []
     private var groups: [MovieGroupAPI] = []
     private var genresUnderline: [FilterCellModel] = []
+    private var movieRepository: MoviesRepository!
     
     convenience init(router: AppRouterProtocol) {
             self.init()
@@ -39,30 +40,33 @@ class MovieListViewController: UIViewController {
         buildViews()
 
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        filmsGrid.reloadData()
+    }
+
     func getData() {
         dataService = NetworkService()
-        
-        genres = MoviesRepository(networkService: dataService).fetchGenre()
-
-        search = MoviesRepository(networkService: dataService).fetchSearch(text: "")
-        
-        print(search)
+        movieRepository = MoviesRepository(networkService: dataService)
         groups = MovieGroupAPI.allCases
-        
-        genres.sort(by: {$0.name < $1.name})
 
-        print("GENRES: \(genres)")
-
-        genresUnderline = genres.enumerated().map { (index, filter) in
+        movieRepository.fetchGenre {[weak self] result in
+            self?.genres = result
+            self?.genresUnderline = result.enumerated().map { (index, filter) in
                 return FilterCellModel(filters: filter, underline: index == 0)
+            }
+            DispatchQueue.main.async {
+                self?.filmsGrid.reloadData()
+            }
         }
-     
-        DispatchQueue.main.async {
-            self.filmsList.reloadData()
-            self.filmsGrid.reloadData()
+        
+        movieRepository.fetchSearch(text: "") {[weak self] result in
+            DispatchQueue.main.async {
+                self?.search = result
+                self?.filmsList.reloadData()
+            }
         }
     }
-  
     
     private func buildViews(){
         view.backgroundColor = .white
@@ -217,8 +221,12 @@ extension MovieListViewController: SearchInFokusDelegate {
 extension MovieListViewController: SearchFilterDelegate {
     
     func filter(text: String) {
-        search = MoviesRepository(networkService: dataService).fetchSearch(text: text)
-        self.filmsList.reloadData()
+        movieRepository.fetchSearch(text: text) {[weak self] result in
+            self?.search = result
+            DispatchQueue.main.async {
+                self?.filmsList.reloadData()
+            }
+        }
     }
 }
 

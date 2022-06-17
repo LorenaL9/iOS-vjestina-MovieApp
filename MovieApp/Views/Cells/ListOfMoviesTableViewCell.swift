@@ -54,11 +54,15 @@ class ListOfMoviesTableViewCell: UITableViewCell {
         group = data
         for genre in genres {
             if genre.underline == true {
-                movies = MoviesRepository(networkService: NetworkService()).fetchMovies(group: data, genreId: genre.filters.id)
+                MoviesRepository(networkService: NetworkService()).fetchMovies(group: data, genreId: genre.filters.id) {
+                    [weak self] result in
+                    DispatchQueue.main.async {
+                        self?.movies = result
+                        self?.movieCollection.reloadData()
+                        self?.filter.reloadData()
+                    }
+                }
             }
-        }
-        DispatchQueue.main.async {
-            self.movieCollection.reloadData()
         }
     }
 
@@ -148,8 +152,6 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == self.movieCollection {
-//            let moviesPopular = movieFilterTitleData.genres.filter{ $0.underline == true}
-//            return moviesPopular.first!.movies.count
             return movies.count
         } else {
             return genres.count
@@ -175,11 +177,14 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             else {
                 fatalError()
             }
-//            let moviesCategory = movieFilterTitleData.genres.filter{ $0.underline == true}
-//            let movies = moviesCategory.first!.movies[indexPath.row]
             for genre in genres {
                 if genre.underline == true {
-                    movies = MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id)
+                    MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id) {
+                        [weak self] result in
+                        DispatchQueue.main.async {
+                            self?.movies = result
+                        }
+                    }
                 }
             }
             let movies = movies[indexPath.row]
@@ -198,13 +203,16 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
             genres = filters
             for genre in genres {
                 if genre.underline == true {
-                    movies = MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id)
+                    MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id) {
+                        [weak self] result in
+                        DispatchQueue.main.async {
+                            self?.movies = result
+                            self?.movieCollection.reloadData()
+                        }
+                    }
                 }
             }
             collectionView.reloadData()
-            let coll = self.movieCollection
-            coll!.reloadData()
-            
         } else {
             let string = "https://api.themoviedb.org/3/movie/\(movies[indexPath.row].id)?language=en-US&page=1&api_key=0c3a28c563dda18040decdb4f03a6aa5"
             delegateController?.changeController(bool: true, string: string)
@@ -214,7 +222,17 @@ extension ListOfMoviesTableViewCell: UICollectionViewDataSource {
 
 extension ListOfMoviesTableViewCell: ReloadFavoritesDelegate {
     func reload() {
-        self.movieCollection.reloadData()
+        for genre in genres {
+            if genre.underline == true {
+                MoviesRepository(networkService: NetworkService()).fetchMovies(group: group, genreId: genre.filters.id) {
+                    [weak self] result in
+                    DispatchQueue.main.async {
+                        self?.movies = result
+                        self?.movieCollection.reloadData()
+                    }
+                }
+            }
+        }
     }
 }
 

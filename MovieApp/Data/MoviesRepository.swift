@@ -17,28 +17,39 @@ class MoviesRepository {
         self.moviesNetworkDataSource = MoviesNetworkDataSource(networkService: networkService, moviesDatabaseDataSource: moviesDatabaseDataSource )
     }
     
-    func fetchGenre() -> [Genre] {
-        var genres: [Genre] = []
-        moviesNetworkDataSource.fetchGenreNetwork()
-        genres = moviesDatabaseDataSource.fetchGenresFromDatabase()
-//        moviesDatabaseDataSource.deleteAllGenres()
-        return genres
+    func fetchSearch(text: String, completionHandler: @escaping ([MyResult]) -> Void){
+        moviesDatabaseDataSource.fetchMoviesFromDatabase(text: text) { (result: [MyResult]) in
+            completionHandler(result)
+        }
     }
     
-    func fetchSearch(text: String) -> [MyResult] {
-        var search: [MyResult] = []
-        search = moviesDatabaseDataSource.fetchMoviesFromDatabase(text: text)
-        return search
+    func fetchGenre(completionHandler: @escaping ([Genre]) -> Void) {
+        moviesNetworkDataSource.fetchGenreNetwork (completionHandler: { (genres: [Genre]) in
+            self.moviesDatabaseDataSource.saveGenreToDatabase(genres: genres, completionHandler: {
+                self.moviesDatabaseDataSource.fetchGenresFromDatabase(completionHandler: { (genresDatabase: [Genre]) in
+                    guard genresDatabase.isEmpty == false else {
+                        completionHandler([])
+                        return
+                    }
+                    completionHandler(genresDatabase)
+                })
+            })
+        })
     }
     
-    func fetchMovies(group: MovieGroupAPI, genreId: Int) -> [MyResult] {
-        var movies: [MyResult] = []
-        moviesNetworkDataSource.fetchMoviesFromNetwork(urlString: group.url, idGroup: group.id)
-        movies = moviesDatabaseDataSource.fetchMoviesFromDatabaseGroupGenre(groupId: group.id, genreId: genreId)
-//        moviesDatabaseDataSource.deleteAllMovies()
-        return movies
+    func fetchMovies(group: MovieGroupAPI, genreId: Int, completionHandler: @escaping ([MyResult]) -> Void) {
+        moviesNetworkDataSource.fetchMoviesFromNetwork(urlString: group.url, comletionHandler: { (movies: [MyResultNetwork]) in
+            self.moviesDatabaseDataSource.saveMovieToDatabase(movies: movies, idGroup: group.id, completionHandler: {
+                self.moviesDatabaseDataSource.fetchMoviesFromDatabaseGroupGenre(groupId: group.id, genreId: genreId, completionHandler: { (moviesDatabase: [MyResult]) in
+                    guard moviesDatabase.isEmpty == false else {
+                        completionHandler([])
+                        return
+                    }
+                    completionHandler(moviesDatabase)
+                })
+            })
+        })
     }
-
     
     func fetchFavoritesFromDatabase() -> [MyResult] {
         var movies: [MyResult] = []
